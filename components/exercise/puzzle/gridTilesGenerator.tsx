@@ -1,5 +1,5 @@
 import { FlatList, Image, StyleSheet, TouchableOpacity } from "react-native";
-import { TilesType } from "../../material/dataMateri";
+import { TilesType } from "@/components/material/dataMateri";
 
 interface GridTilesGeneratorProps {
   data: TilesType[];

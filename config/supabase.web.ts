@@ -8,7 +8,6 @@ const isSSR = typeof window === 'undefined'
 const ExpoWebSecureStoreAdapter = {
   getItem: (key: string) => {
     if (isSSR) return null
-    console.debug('getItem', { key })
     return AsyncStorage.getItem(key)
   },
   setItem: (key: string, value: string) => {
@@ -21,8 +20,8 @@ const ExpoWebSecureStoreAdapter = {
   },
 }
 
-const supabaseUrl = 'https://iyrwvvgrzboiynmjzuga.supabase.co';
-const supabaseAnonKey = 'sb_publishable_IAjxCYe-GOS8JCAQEOvHiA_KO09PLuD';
+const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {

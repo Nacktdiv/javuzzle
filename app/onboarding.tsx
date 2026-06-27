@@ -5,6 +5,7 @@ import { globalDataContext } from '@/app/_layout'
 import { supabase } from '@/config/supabase.web';
 
 // Import komponen halaman terpisah yang sudah kamu buat di folder components
+import { useCustomAlert } from '@/components/main/customAlert';
 import StepOne from '@/components/onboarding/StepOne';
 import StepTwo from '@/components/onboarding/StepTwo';
 import StepThree from '@/components/onboarding/StepThree';
@@ -14,6 +15,7 @@ import StepFive from '@/components/onboarding/StepFive';
 const { width } = Dimensions.get('window');
 
 export default function OnboardingScreen() {
+  const { showAlert } = useCustomAlert()
   const {user} = useContext(globalDataContext)
   const [currentStep, setCurrentStep] = useState<number>(1);
   const router = useRouter();
@@ -22,14 +24,22 @@ export default function OnboardingScreen() {
   const handleNext = async () => {
     if (currentStep < totalSteps) {
       if (currentStep === 4 && !user?.study_plan) {
-        alert("Masukkan rencana belajar yang sesuai terlebih dahulu")
+          showAlert({
+            title: "Rencana Belajar", 
+            message: "Masukkan rencana belajar terlebih dahulu",
+            confirmText:"OK"
+          })
       } else if (currentStep === 4 && user?.study_plan) {
         const {data, error} = await supabase
           .from('users')
           .update({study_plan: user?.study_plan})
           .eq('id', user?.id)
         if (error) {
-          alert('Gagal melakukan update study plan ke database: ' + error)
+          showAlert({
+            title: "ErrorOnboarding", 
+            message: "Error while updating study_plan: " + error,
+            confirmText:"OK"
+          })
         }
         setCurrentStep(currentStep + 1);
       } else {
@@ -38,8 +48,14 @@ export default function OnboardingScreen() {
     } else {
       try {
         router.replace('/(tabs)');
-      } catch (error) {
-        console.error('Gagal menyimpan status onboarding:', error);
+      } catch (err) {
+        if (!err) return 
+        const errorMessage = String(err) 
+        showAlert({
+          title: "ErrorOnboarding", 
+          message: "Error while updating study_plan: " + errorMessage,
+          confirmText:"OK"
+        })
       }
     }
   };

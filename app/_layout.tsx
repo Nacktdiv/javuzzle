@@ -131,13 +131,11 @@ export default function RootLayout() {
         // 🟥 KONDISI 1: Belum isi study_plan -> KURUNG di onboarding
         if (currentSegment !== "onboarding") {
           router.replace("/onboarding");
-          console.log('ke onboard')
         }
       } else if (hasStudyPlan === true) {
         // 🟩 KONDISI 2: Sudah isi study_plan -> Boleh ke tabs/mode, JANGAN boleh ke auth/onboarding
         if (currentSegment === "auth" || currentSegment === "onboarding") {
           router.replace("/(tabs)");
-          console.log('ke tabs')
         }
       }
     }

@@ -2,7 +2,7 @@ import {
     ComponentType,
     komponenAksara,
     TilesType,
-} from "../../material/dataMateri";
+} from "@/components/material/dataMateri";
 
 export default function RandomTilesGenerator(data: ComponentType[]) {
   // partial fisher yates

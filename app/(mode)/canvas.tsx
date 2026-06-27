@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext } from "react";
 import { ActivityIndicator, StyleSheet, View, Platform } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { Asset } from "expo-asset";
-import { File, Directory, Paths } from "expo-file-system";
+import { File, Paths } from "expo-file-system";
 
 let loadTensorflowModel: any = null;
 let NitroModules: any = null;
@@ -13,8 +13,8 @@ if (Platform.OS !== 'web') {
 }
 // import { loadTensorflowModel } from "react-native-fast-tflite";
 // import { NitroModules } from "react-native-nitro-modules";
-import { globalDataContext } from "../_layout";
-import { ModeContext } from "./_layout";
+import { globalDataContext } from "@/app/_layout";
+import { ModeContext } from "@/app/(mode)/_layout";
 import { useCustomAlert } from "@/components/main/customAlert";
 import CanvasComponent from "@/components/exercise/canvas/canvasComponent";
 import DataCanvasGenerator from "@/components/exercise/canvas/dataCanvasGenerator";
@@ -39,7 +39,6 @@ export default function Canvas() {
   const [boxedModel, setBoxedModel] = useState<any>(null);
   const [activeIndex, setActiveIndex] = useState<number>(0);
   const [dataLevel, setDataLevel] = useState<any[] | null>(null);
-  console.log(dataLevel)
 
   useEffect(() => {
     if (dataLevel || !question) return;
@@ -51,43 +50,38 @@ export default function Canvas() {
     async function loadModel() {
       try {
         if (Platform.OS === 'web') return;
-        console.log("=== MEMULAI AMBIL ASET ===");
         const asset = Asset.fromModule(require("@/assets/model/model.tflite"));
         await asset.downloadAsync();
         
         let modelPath = asset.localUri || asset.uri;
-        console.log("Path awal dari Expo Asset:", modelPath);
 
         if (modelPath && !modelPath.startsWith("file://")) {
           const targetFile = new File(Paths.document, 'model.tflite');
-          
-          console.log("Deteksi mode rilis. Menyalin biner ke sandbox...");
-          // Gunakan downloadFileAsync sesuai validasi compiler Anda
+
           await File.downloadFileAsync(modelPath, targetFile);
           
           modelPath = targetFile.uri;
         }
-
-        console.log("Memuat ke TFLite dengan Path Akhir:", modelPath);
         
-        // Gunakan fungsi bawaan Anda kembali: loadTensorflowModel
         const tfliteModel = await loadTensorflowModel({url: modelPath}, []);
-        console.log("Hasil return dari loadTensorflowModel:", tfliteModel);
 
         if (!tfliteModel) {
-          console.warn("⚠️ Model ter-load tapi mengembalikan nilai null. Memeriksa NitroModules...");
+          showAlert({
+            title: "ErrorCanvas", 
+            message: "Error while load model:" + tfliteModel,
+            confirmText:"OK"
+          })
         }
 
         const boxedModel = NitroModules.box(tfliteModel);
         setBoxedModel(boxedModel);
-        console.log("🎉 Proses Boxing Selesai. Model siap digunakan!");
       } catch (error) {
-        console.error("❌ Terjadi Error pada Alur Pemuatan Model:", error);
+        const errorMessage = String(error)
         showAlert({
           title: "ErrorLoadModel",
           message:
-            typeof error === "string"
-              ? error
+            typeof errorMessage === "string"
+              ? errorMessage
               : "Gagal Load Model Tflite Aksara Jawa",
           confirmText: "OK",
         });

@@ -2,7 +2,7 @@ import React, { useMemo, useRef, useState } from "react";
 import { PanResponder, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Canvas, Path, Rect, Skia, useCanvasRef,} from "@shopify/react-native-skia";
 
-import { useCustomAlert } from "../../main/customAlert";
+import { useCustomAlert } from "@/components/main/customAlert";
 import { AnalyzeImageBuffer, MakeImageBufferPerPiece } from "./canvasMultiAnalyze";
 
 type CanvasType = {

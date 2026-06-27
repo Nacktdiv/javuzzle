@@ -7,31 +7,6 @@ import CustomSplashScreen from '@/components/main/splashScreen';
 
 export default function HomeScreen() {
   const router = useRouter();
-  
-  // const [isLoading, setIsLoading] = useState(true);
-
-  // useEffect(() => {
-  //   const checkOnboarding = async () => {
-  //     try {
-  //       console.log('splash screen aktif')
-  //       await new Promise(resolve => setTimeout(resolve, 2500));
-  //       console.log('splash screen selesai')
-
-  //       const alreadyLaunched = await AsyncStorage.getItem('alreadyLaunched');
-        
-  //       if (alreadyLaunched === null) {
-  //         router.replace('/onboarding');
-  //       } else {
-  //         setIsLoading(false);
-  //       }
-  //     } catch (error) {
-  //       console.error("Gagal ngecek onboarding:", error);
-  //       setIsLoading(false); 
-  //     }
-  //   };
-
-  //   checkOnboarding();
-  // }, []);
 
   const handleResetOnboarding = async () => {
     try {

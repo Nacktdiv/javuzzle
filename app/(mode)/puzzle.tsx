@@ -2,8 +2,8 @@ import React, { useState, useEffect, useContext } from "react";
 import { StyleSheet, View, Image } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router"
 
-import { globalDataContext } from "../_layout";
-import { ModeContext } from "./_layout";
+import { globalDataContext } from "@/app/_layout";
+import { ModeContext } from "@/app/(mode)/_layout";
 import { useCustomAlert } from "@/components/main/customAlert";
 import { ComponentType, TilesType } from "@/components/material/dataMateri";
 import TeksHighlight  from "@/components/exercise/textHighlighter";
