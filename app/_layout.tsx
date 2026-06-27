@@ -1,25 +1,32 @@
-import { Platform } from "react-native";
-import React, { createContext, useEffect, useState } from "react";
-import { Stack, useRouter, useSegments } from "expo-router";
 import * as NavigationBar from "expo-navigation-bar";
+import { Stack, useRouter, useSegments } from "expo-router";
+import React, { createContext, useEffect, useState } from "react";
+import { Platform } from "react-native";
 
-import { useFonts, PlayfairDisplay_400Regular, PlayfairDisplay_700Bold } from '@expo-google-fonts/playfair-display'
-import { Fraunces_400Regular, Fraunces_700Bold } from '@expo-google-fonts/fraunces'
-import { Balthazar_400Regular } from '@expo-google-fonts/balthazar'
+import { Balthazar_400Regular } from "@expo-google-fonts/balthazar";
+import {
+    Fraunces_400Regular,
+    Fraunces_700Bold,
+} from "@expo-google-fonts/fraunces";
+import {
+    PlayfairDisplay_400Regular,
+    PlayfairDisplay_700Bold,
+    useFonts,
+} from "@expo-google-fonts/playfair-display";
 
-import { supabase } from '@/config/supabase.web'
-import CustomSplashScreen from "@/components/main/splashScreen";
 import { CustomAlertProvider } from "@/components/main/customAlert";
+import CustomSplashScreen from "@/components/main/splashScreen";
+import { supabase } from "@/config/supabase";
 
 type userType = {
-  id : string,
-  email : string,
-  nama : string,
-  level : number,
-  poin : number,
-  study_plan : number,
-  created_at : string
-}
+  id: string;
+  email: string;
+  nama: string;
+  level: number;
+  poin: number;
+  study_plan: number;
+  created_at: string;
+};
 
 interface GlobalContextType {
   user: userType | null;
@@ -30,7 +37,7 @@ interface GlobalContextType {
 export const globalDataContext = createContext<GlobalContextType>({
   user: null,
   setUser: () => {},
-  checkUserProfile: async () => {}, 
+  checkUserProfile: async () => {},
 });
 
 export default function RootLayout() {
@@ -38,9 +45,9 @@ export default function RootLayout() {
   const [session, setSession] = useState<any>(null);
   const [hasStudyPlan, setHasStudyPlan] = useState<boolean | null>(null);
   const [isLoadingProfile, setIsLoadingProfile] = useState(false);
-  
-  const [user, setUser] = useState<userType | null>(null)
-  
+
+  const [user, setUser] = useState<userType | null>(null);
+
   const router = useRouter();
   const segments = useSegments();
 
@@ -52,20 +59,20 @@ export default function RootLayout() {
   }, []);
 
   const [loaded, error] = useFonts({
-    'Playfair-Display-Regular' : PlayfairDisplay_400Regular,
-    'Playfair-Display-Bold' : PlayfairDisplay_700Bold,
-    'Fraunces-Regular' : Fraunces_400Regular,
-    'Fraunces-Bold' : Fraunces_700Bold,
-    'Balthazar-Regular' : Balthazar_400Regular
-  })
+    "Playfair-Display-Regular": PlayfairDisplay_400Regular,
+    "Playfair-Display-Bold": PlayfairDisplay_700Bold,
+    "Fraunces-Regular": Fraunces_400Regular,
+    "Fraunces-Bold": Fraunces_700Bold,
+    "Balthazar-Regular": Balthazar_400Regular,
+  });
 
   const checkUserProfile = async (userId: string) => {
     setIsLoadingProfile(true);
     try {
       const { data, error } = await supabase
-        .from('users')
-        .select('*') 
-        .eq('id', userId)
+        .from("users")
+        .select("*")
+        .eq("id", userId)
         .single();
 
       if (data && data.study_plan !== null) {
@@ -77,16 +84,18 @@ export default function RootLayout() {
       }
     } catch (err) {
       setHasStudyPlan(false);
-      setUser(null)
+      setUser(null);
     } finally {
       setIsLoadingProfile(false);
     }
   };
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
-      
+
       if (session?.user) {
         checkUserProfile(session.user.id);
       } else {

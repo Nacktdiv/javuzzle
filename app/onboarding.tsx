@@ -1,22 +1,29 @@
-import React, { useState, useContext } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, SafeAreaView, Dimensions } from 'react-native';
-import { useRouter, Stack } from 'expo-router';
-import { globalDataContext } from '@/app/_layout'
-import { supabase } from '@/config/supabase.web';
+import { globalDataContext } from "@/app/_layout";
+import { supabase } from "@/config/supabase";
+import { Stack, useRouter } from "expo-router";
+import React, { useContext, useState } from "react";
+import {
+    Dimensions,
+    SafeAreaView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+} from "react-native";
 
 // Import komponen halaman terpisah yang sudah kamu buat di folder components
-import { useCustomAlert } from '@/components/main/customAlert';
-import StepOne from '@/components/onboarding/StepOne';
-import StepTwo from '@/components/onboarding/StepTwo';
-import StepThree from '@/components/onboarding/StepThree';
-import StepFour from '@/components/onboarding/StepFour';
-import StepFive from '@/components/onboarding/StepFive';
+import { useCustomAlert } from "@/components/main/customAlert";
+import StepFive from "@/components/onboarding/StepFive";
+import StepFour from "@/components/onboarding/StepFour";
+import StepOne from "@/components/onboarding/StepOne";
+import StepThree from "@/components/onboarding/StepThree";
+import StepTwo from "@/components/onboarding/StepTwo";
 
-const { width } = Dimensions.get('window');
+const { width } = Dimensions.get("window");
 
 export default function OnboardingScreen() {
-  const { showAlert } = useCustomAlert()
-  const {user} = useContext(globalDataContext)
+  const { showAlert } = useCustomAlert();
+  const { user } = useContext(globalDataContext);
   const [currentStep, setCurrentStep] = useState<number>(1);
   const router = useRouter();
   const totalSteps = 5;
@@ -24,22 +31,22 @@ export default function OnboardingScreen() {
   const handleNext = async () => {
     if (currentStep < totalSteps) {
       if (currentStep === 4 && !user?.study_plan) {
-          showAlert({
-            title: "Rencana Belajar", 
-            message: "Masukkan rencana belajar terlebih dahulu",
-            confirmText:"OK"
-          })
+        showAlert({
+          title: "Rencana Belajar",
+          message: "Masukkan rencana belajar terlebih dahulu",
+          confirmText: "OK",
+        });
       } else if (currentStep === 4 && user?.study_plan) {
-        const {data, error} = await supabase
-          .from('users')
-          .update({study_plan: user?.study_plan})
-          .eq('id', user?.id)
+        const { data, error } = await supabase
+          .from("users")
+          .update({ study_plan: user?.study_plan })
+          .eq("id", user?.id);
         if (error) {
           showAlert({
-            title: "ErrorOnboarding", 
+            title: "ErrorOnboarding",
             message: "Error while updating study_plan: " + error,
-            confirmText:"OK"
-          })
+            confirmText: "OK",
+          });
         }
         setCurrentStep(currentStep + 1);
       } else {
@@ -47,34 +54,40 @@ export default function OnboardingScreen() {
       }
     } else {
       try {
-        router.replace('/(tabs)');
+        router.replace("/(tabs)");
       } catch (err) {
-        if (!err) return 
-        const errorMessage = String(err) 
+        if (!err) return;
+        const errorMessage = String(err);
         showAlert({
-          title: "ErrorOnboarding", 
+          title: "ErrorOnboarding",
           message: "Error while updating study_plan: " + errorMessage,
-          confirmText:"OK"
-        })
+          confirmText: "OK",
+        });
       }
     }
   };
 
   const handleBack = () => {
     if (currentStep > 1) {
-        setCurrentStep(currentStep - 1);
+      setCurrentStep(currentStep - 1);
     }
   };
 
   // Fungsi merender halaman berdasarkan step aktif
   const renderStep = () => {
     switch (currentStep) {
-      case 1: return <StepOne />;
-      case 2: return <StepTwo />;
-      case 3: return <StepThree />;
-      case 4: return <StepFour />;
-      case 5: return <StepFive />;
-      default: return <StepOne />;
+      case 1:
+        return <StepOne />;
+      case 2:
+        return <StepTwo />;
+      case 3:
+        return <StepThree />;
+      case 4:
+        return <StepFour />;
+      case 5:
+        return <StepFive />;
+      default:
+        return <StepOne />;
     }
   };
 
@@ -85,15 +98,16 @@ export default function OnboardingScreen() {
 
       {/* 1. Header Area (Tombol Lewati / Skip) */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.replace ('/auth')} activeOpacity={0.6}>
-            <Text style={styles.skipText}>Lewati</Text>
-          </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => router.replace("/auth")}
+          activeOpacity={0.6}
+        >
+          <Text style={styles.skipText}>Lewati</Text>
+        </TouchableOpacity>
       </View>
 
       {/* 2. Konten Utama (Komponen Terpisah) */}
-      <View style={styles.contentContainer}>
-        {renderStep()}
-      </View>
+      <View style={styles.contentContainer}>{renderStep()}</View>
 
       {/* 3. Footer Area (Indikator & Tombol Navigasi) */}
       <View style={styles.footer}>
@@ -106,7 +120,9 @@ export default function OnboardingScreen() {
                 key={stepNumber}
                 style={[
                   styles.indicator,
-                  currentStep === stepNumber ? styles.indicatorActive : styles.indicatorInactive,
+                  currentStep === stepNumber
+                    ? styles.indicatorActive
+                    : styles.indicatorInactive,
                 ]}
               />
             );
@@ -115,31 +131,29 @@ export default function OnboardingScreen() {
 
         {/* Area Tombol Navigasi Bawah */}
         <View style={styles.buttonContainer}>
-        
-        {/* Tombol Kembali (Hanya muncul jika step > 1) */}
-        {currentStep > 1 ? (
-            <TouchableOpacity 
-            style={[styles.navButton, styles.backButton]} 
-            onPress={handleBack}
-            activeOpacity={0.7}
+          {/* Tombol Kembali (Hanya muncul jika step > 1) */}
+          {currentStep > 1 ? (
+            <TouchableOpacity
+              style={[styles.navButton, styles.backButton]}
+              onPress={handleBack}
+              activeOpacity={0.7}
             >
-            <Text style={styles.backButtonText}>Kembali</Text>
+              <Text style={styles.backButtonText}>Kembali</Text>
             </TouchableOpacity>
-        ) : (
-            <></> 
-        )}
+          ) : (
+            <></>
+          )}
 
-        {/* Tombol Lanjutkan / Mulai */}
-        <TouchableOpacity 
-            style={[styles.navButton, styles.nextButton]} 
+          {/* Tombol Lanjutkan / Mulai */}
+          <TouchableOpacity
+            style={[styles.navButton, styles.nextButton]}
             onPress={handleNext}
             activeOpacity={0.8}
-        >
+          >
             <Text style={styles.nextButtonText}>
-            {currentStep === totalSteps ? 'Mulai Sekarang' : 'Lanjutkan'}
+              {currentStep === totalSteps ? "Mulai Sekarang" : "Lanjutkan"}
             </Text>
-        </TouchableOpacity>
-
+          </TouchableOpacity>
         </View>
       </View>
     </SafeAreaView>
@@ -149,50 +163,50 @@ export default function OnboardingScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFECC8', // Latar belakang pastel hangat serasi dengan splash screen
+    backgroundColor: "#FFECC8", // Latar belakang pastel hangat serasi dengan splash screen
   },
   header: {
     height: 50,
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    alignItems: "center",
     paddingHorizontal: 24,
   },
   skipText: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#6F614B', // Warna cokelat gelap yang kontras tapi lembut
+    fontWeight: "600",
+    color: "#6F614B", // Warna cokelat gelap yang kontras tapi lembut
   },
   contentContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   footer: {
     paddingHorizontal: 24,
     paddingBottom: 30,
-    alignItems: 'center',
+    alignItems: "center",
   },
   indicatorContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
     marginBottom: 32,
   },
   indicator: {
     height: 8,
     borderRadius: 4,
-    marginHorizontal: 4
+    marginHorizontal: 4,
   },
   indicatorActive: {
     width: 24, // Efek memanjang seperti kapsul untuk halaman aktif
-    backgroundColor: '#3E3224',
+    backgroundColor: "#3E3224",
   },
   indicatorInactive: {
     width: 8,
-    backgroundColor: '#E6D3B3',
+    backgroundColor: "#E6D3B3",
   },
   buttonContainer: {
-    flexDirection: 'row', // Membuat tombol berjajar ke samping
+    flexDirection: "row", // Membuat tombol berjajar ke samping
     width: width - 48,
     gap: 16, // Jarak antar tombol
   },
@@ -200,30 +214,30 @@ const styles = StyleSheet.create({
     flex: 1, // Agar kedua tombol punya lebar yang sama (50:50)
     height: 56,
     borderRadius: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   backButton: {
-    backgroundColor: 'transparent',
+    backgroundColor: "transparent",
     borderWidth: 1,
-    borderColor: '#3E3224', // Outline cokelat arang
+    borderColor: "#3E3224", // Outline cokelat arang
   },
   nextButton: {
-    backgroundColor: '#3E3224',
+    backgroundColor: "#3E3224",
     elevation: 4,
-    shadowColor: '#3E3224',
+    shadowColor: "#3E3224",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 8,
   },
   backButtonText: {
-    color: '#3E3224',
+    color: "#3E3224",
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   nextButtonText: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
 });
