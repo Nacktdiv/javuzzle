@@ -1,0 +1,52 @@
+{
+  "expo": {
+    "name": "Javuzzle",
+    "slug": "javuzzle",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/maskot-head.png",
+    "userInterfaceStyle": "light",
+    "backgroundColor": "#ffecc8",
+    "splash": {
+      "image": "./assets/images/maskot-head.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffecc8"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.nactdiv.javuzzle",
+      "newArchEnabled": true,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "package": "com.nactdiv.javuzzle",
+      "versionCode": 1,
+      "permissions": [
+        "CAMERA"
+      ],
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/maskot-head.png",
+        "backgroundColor": "#ffecc8"
+      },
+      "edgeToEdgeEnabled": true,
+      "newArchEnabled": true
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      "react-native-fast-tflite",
+      "expo-font",
+      "expo-asset"
+    ],
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "e462d10d-39d8-406d-a697-3e685c1d6988"
+      }
+    }
+  }
+}
