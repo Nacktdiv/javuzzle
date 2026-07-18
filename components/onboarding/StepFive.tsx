@@ -4,7 +4,7 @@ import { globalDataContext } from '@/app/_layout';
 const { width } = Dimensions.get('window');
 
 export default function StepFive() {
-  const {userPlan} = useContext(globalDataContext)
+  const {user} = useContext(globalDataContext)
 
   return (
     <View style={styles.slide}>
@@ -17,7 +17,7 @@ export default function StepFive() {
           <Text
             style={styles.containerBubbleText}
           >
-          Iki latihan {userPlan?.value || 0} menit pertamamu!
+          Iki latihan {user?.study_plan || 0} menit pertamamu!
           </Text>
         </View>
         <View style={styles.arrowBubble} />

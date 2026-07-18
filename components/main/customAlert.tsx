@@ -1,8 +1,5 @@
 import React, { useState, createContext, useContext, ReactNode } from 'react';
-import { StyleSheet } from 'react-native';
-import AwesomeAlert from 'react-native-awesome-alerts';
-
-// 1. Tipe Data untuk Parameter Alert
+import { StyleSheet, Text, View, Modal, TouchableOpacity } from 'react-native';
 interface AlertOptions {
   title?: string;
   message: string;
@@ -21,7 +18,6 @@ interface AlertContextType {
 
 const AlertContext = createContext<AlertContextType | undefined>(undefined);
 
-// 2. Provider Global yang membungkus Root App
 export const CustomAlertProvider = ({ children }: { children: ReactNode }) => {
   const [visible, setVisible] = useState(false);
   const [options, setOptions] = useState<AlertOptions>({ message: '' });
@@ -38,69 +34,81 @@ export const CustomAlertProvider = ({ children }: { children: ReactNode }) => {
   return (
     <AlertContext.Provider value={{ showAlert, hideAlert }}>
       {children}
-      <AwesomeAlert
-        show={visible}
-        showProgress={false}
-        title={options.title}
-        message={options.message}
-        closeOnTouchOutside={false}
-        closeOnHardwareBackPress={false}
-        
-        // Pengaturan Tombol
-        showCancelButton={options.showCancelButton ?? false}
-        showConfirmButton={options.showConfirmButton ?? true}
-        cancelText={options.cancelText ?? "Batal"}
-        confirmText={options.confirmText ?? "Oke"}
-        
-        // Aksi Tombol
-        onCancelPressed={() => {
-          if (options.onCancelPressed) options.onCancelPressed();
-          hideAlert();
-        }}
-        onConfirmPressed={() => {
-          if (options.onConfirmPressed) options.onConfirmPressed();
-          hideAlert();
-        }}
+      
+      <Modal
+        visible={visible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={hideAlert} 
+      >
+        <View style={styles.overlay}>
+          <View style={styles.contentContainer}>
+            {options.title && (
+              <Text style={styles.title}>{options.title}</Text>
+            )}
 
-        // STYLING MENYESUAIKAN TEMA JAVUZZLE (KAYU / KARAMEL)
-        alertContainerStyle={styles.alertContainer}
-        overlayStyle={styles.overlay}
-        contentContainerStyle={styles.contentContainer}
-        titleStyle={styles.title}
-        messageStyle={styles.message}
-        cancelButtonStyle={[styles.button, styles.cancelButton]}
-        confirmButtonStyle={[styles.button, styles.confirmButton]}
-        cancelButtonTextStyle={styles.buttonText}
-        confirmButtonTextStyle={styles.buttonText}
-      />
+            <Text style={styles.message}>{options.message}</Text>
+
+            <View style={styles.buttonContainer}>
+              {(options.showCancelButton ?? false) && (
+                <TouchableOpacity
+                  style={[styles.button, styles.cancelButton]}
+                  onPress={() => {
+                    if (options.onCancelPressed) options.onCancelPressed();
+                    hideAlert();
+                  }}
+                >
+                  <Text style={styles.buttonText}>{options.cancelText ?? "Batal"}</Text>
+                </TouchableOpacity>
+              )}
+
+              {(options.showConfirmButton ?? true) && (
+                <TouchableOpacity
+                  style={[styles.button, styles.confirmButton]}
+                  onPress={() => {
+                    if (options.onConfirmPressed) options.onConfirmPressed();
+                    hideAlert();
+                  }}
+                >
+                  <Text style={styles.buttonText}>{options.confirmText ?? "Oke"}</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+          </View>
+        </View>
+      </Modal>
     </AlertContext.Provider>
   );
 };
 
-// 3. Custom Hook untuk dipanggil di Screen/Komponen manapun
 export const useCustomAlert = () => {
   const context = useContext(AlertContext);
   if (!context) {
-    throw new Error('useJavuzzleAlert harus digunakan di dalam JavuzzleAlertProvider');
+    throw new Error('useCustomAlert harus digunakan di dalam CustomAlertProvider');
   }
   return context;
 };
 
-// Style bertema Cokelat & Krem khas App-mu
 const styles = StyleSheet.create({
-  alertContainer: {
-    zIndex: 9999,
-  },
   overlay: {
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', 
   },
   contentContainer: {
-    backgroundColor: '#fff4eb', // Background krem terang agar kontras
+    backgroundColor: '#fff4eb', 
     borderRadius: 15,
     borderWidth: 4,
-    borderColor: '#6f411d', // Border kayu gelap
+    borderColor: '#6f411d', 
     padding: 20,
     width: '85%',
+    alignItems: 'center',
+    elevation: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
   },
   title: {
     fontSize: 20,
@@ -114,8 +122,14 @@ const styles = StyleSheet.create({
     fontFamily: 'Balthazar-Regular',
     color: '#4a2306',
     textAlign: 'center',
-    marginBottom: 15,
+    marginBottom: 20,
     lineHeight: 22,
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 15,
+    width: '100%',
   },
   button: {
     borderRadius: 8,
@@ -123,14 +137,15 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     minWidth: 100,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   confirmButton: {
-    backgroundColor: '#cb9163', // Cokelat karamel khas tombol utama
+    backgroundColor: '#cb9163',
     borderWidth: 2,
     borderColor: '#6f411d',
   },
   cancelButton: {
-    backgroundColor: '#d97d7d', // Warna soft red untuk batal
+    backgroundColor: '#d97d7d',
     borderWidth: 2,
     borderColor: '#7a2b2b',
   },

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, FlatList } from 'react-native';
+import { StyleSheet, Text, View, FlatList, ScrollView } from 'react-native';
 
-import { MateriType, MATERI_AKSARA } from '@/components/material/dataMateri';
+import { MateriType, MATERI_AKSARA, MATERI_SANDHANGAN } from '@/components/material/dataMateri';
 import CardGenerator from '@/components/material/cardGenerator';
 import ModalMateri from '@/components/material/modalMateri';
 
@@ -21,22 +21,43 @@ export default function MateriScreen() {
 
   return (
     <View style={styles.container}>
+
       <View style={styles.header}>
         <Text style={styles.title}>Sinau Aksara Jawa</Text>
         <Text style={styles.subtitle}>Pilih salah satu aksara untuk mempelajari detailnya</Text>
       </View>
 
-      <FlatList
-        data={MATERI_AKSARA}
-        keyExtractor={(item) => item.id}
-        numColumns={3}
-        renderItem={({ item }) => (
-          <CardGenerator item={item} onPress={() => handleOpenDetail(item)} />
-        )}
-        columnWrapperStyle={styles.listColumnWrapper}
-        contentContainerStyle={styles.listContentContainer}
-        showsVerticalScrollIndicator={false}
-      />
+      <ScrollView style={styles.scrollContainer}>
+        <Text style={styles.partTitle}>Aksara Jawa</Text>
+        <FlatList
+          data={MATERI_AKSARA}
+          keyExtractor={(item) => item.id}
+          numColumns={3}
+          renderItem={({ item }) => (
+            <CardGenerator item={item} onPress={() => handleOpenDetail(item)} />
+          )}
+          columnWrapperStyle={styles.listColumnWrapper}
+          contentContainerStyle={styles.listContentContainer}
+          showsVerticalScrollIndicator={false}
+          scrollEnabled={false}           
+          nestedScrollEnabled={true}
+        />
+
+        <Text style={styles.partTitle}>Sandhangan</Text>
+        <FlatList
+          data={MATERI_SANDHANGAN}
+          keyExtractor={(item) => item.id}
+          numColumns={3}
+          renderItem={({ item }) => (
+            <CardGenerator item={item} onPress={() => handleOpenDetail(item)} />
+          )}
+          columnWrapperStyle={styles.listColumnWrapper}
+          contentContainerStyle={styles.listContentContainer}
+          showsVerticalScrollIndicator={false}
+          scrollEnabled={false}          
+          nestedScrollEnabled={true}
+        />
+      </ScrollView>
 
       <ModalMateri
         visible={modalVisible}
@@ -76,10 +97,21 @@ const styles = StyleSheet.create({
     color: '#3E3224',
     marginTop: 4,
   },
+  partTitle: {
+    fontSize: 24,
+    fontFamily: 'Fraunces-Bold',
+    textAlign: 'center',
+    color: '#cb9163',
+    marginBottom: 20
+  },
+  scrollContainer: {
+    paddingBottom: 40, 
+  },
   listColumnWrapper: {
     gap:10,
     justifyContent: 'center',
-    alignContent: 'center'
+    alignContent: 'center',
+    flex: 1
   },
   listContentContainer: {
     paddingHorizontal: 12,

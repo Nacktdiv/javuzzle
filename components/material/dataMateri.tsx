@@ -325,7 +325,10 @@ export const MATERI_AKSARA: MateriType[] = [
         { urutan: 1, nama:'n_nyantik', image:require('@/assets/component/n_nyantik.png') },
         { urutan: 2, nama:'payung_m', image:require('@/assets/component/payung_m.png') },
     ] 
-  },
+  }
+];
+
+export const MATERI_SANDHANGAN: MateriType[] = [
   {
     id: '21',
     aksara: require('@/assets/component/wulu.png'),
@@ -396,4 +399,4 @@ export const MATERI_AKSARA: MateriType[] = [
         { urutan: 2, nama: 'suku', image: require('@/assets/component/suku.png') }
     ] 
   }
-];
+]

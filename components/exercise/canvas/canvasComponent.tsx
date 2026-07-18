@@ -92,28 +92,62 @@ export default function CanvasComponent({ boxedModel, activeIndex, setActiveInde
         daftarPixelBuffer.push(pixelBuffer);
       }
 
-      const daftarHasilPrediksi: string[] = [];
+      const daftarHasilPrediksi: {
+        prediction: string;
+        confidence: number;
+      }[][] = [];
 
       for (let i = 0; i < daftarPixelBuffer.length; i++) {
         await new Promise((resolve) => setTimeout(resolve, 150));
 
         const hasil = await AnalyzeImageBuffer(daftarPixelBuffer[i], model);
-        daftarHasilPrediksi.push(hasil.prediction);
+        daftarHasilPrediksi.push(hasil);
       }
 
-      const cekKebenaran = dataActive.every((item) =>
-        daftarHasilPrediksi.includes(item),
-      );
+      // const cekKebenaran = dataActive.every((item) =>
+      //   daftarHasilPrediksi.includes(item),
+      // );
+      const checker : any[] = [] 
+      dataActive.every(item => {
+        for (let i = 0; i < daftarHasilPrediksi.length; i++){
+          let status = false
+          for (let k = 0; k < daftarHasilPrediksi[i].length; k++){
+            if (daftarHasilPrediksi[i][k].prediction === item) {
+              checker.push({aksara : item, lokasi : [i, k]})
+              if (k == 1) status = true
+              break
+            }
+          }
+          if (status) break
+          checker.push({aksara : item, lokasi : [i, -1]})
+        }
+      })
+
+      let cekKebenaran = false
+      checker.map(item => {
+        if (item.lokasi[1] == 0) cekKebenaran = true
+      })
 
       if (cekKebenaran) {
         setLoading(false);
         setActiveIndex((prev) => activeIndex + 1);
       } else {
+        let messageList : string[] = []
+        checker.map(item => {
+          if (item.lokasi[1] == 0) {
+            messageList.push(`Tulisan untuk aksara ${item.aksara} sudah bagus. `)
+          } else if (item.lokasi[1] == -1){
+            messageList.push(`Tulisan yang kamu buat untuk aksara ${item.aksara} itu salah. `)
+          } else {
+            messageList.push(`Tulisan yang kamu buat untuk aksara ${item.aksara} kurang rapi. `)
+          }
+        })
+        const gabunganMessage = messageList.join('');
         setLoading(false);
         showAlert({
           title: "COBA LAGI!",
           message:
-            "Tulisan/garis yang anda buat kurang bagus dan rapi silahkan anda tulis kembali",
+            `${gabunganMessage}Semangat silahkan coba lagi`,
           confirmText: "OK",
         });
       }

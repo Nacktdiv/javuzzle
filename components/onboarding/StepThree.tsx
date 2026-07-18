@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 32,
-    fontWeight: 'bold',
+    fontFamily: 'Fraunces-Bold',
     color: '#3E3224',
     textAlign: 'center',
     marginBottom: 16,
@@ -55,5 +55,6 @@ const styles = StyleSheet.create({
     color: '#6F614B',
     textAlign: 'center',
     lineHeight: 24,
+    fontFamily: 'Playfair-Display-Bold'
   },
 });

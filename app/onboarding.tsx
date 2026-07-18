@@ -11,7 +11,6 @@ import {
     View,
 } from "react-native";
 
-// Import komponen halaman terpisah yang sudah kamu buat di folder components
 import { useCustomAlert } from "@/components/main/customAlert";
 import StepFive from "@/components/onboarding/StepFive";
 import StepFour from "@/components/onboarding/StepFour";
@@ -73,7 +72,6 @@ export default function OnboardingScreen() {
     }
   };
 
-  // Fungsi merender halaman berdasarkan step aktif
   const renderStep = () => {
     switch (currentStep) {
       case 1:
@@ -93,10 +91,8 @@ export default function OnboardingScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Memastikan Header bawaan Stack tidak muncul dan menyembunyikan Tabs */}
       <Stack.Screen options={{ headerShown: false, gestureEnabled: false }} />
 
-      {/* 1. Header Area (Tombol Lewati / Skip) */}
       <View style={styles.header}>
         <TouchableOpacity
           onPress={() => router.replace("/auth")}
@@ -106,12 +102,9 @@ export default function OnboardingScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* 2. Konten Utama (Komponen Terpisah) */}
       <View style={styles.contentContainer}>{renderStep()}</View>
 
-      {/* 3. Footer Area (Indikator & Tombol Navigasi) */}
       <View style={styles.footer}>
-        {/* Indikator Titik (Pagination Dots) */}
         <View style={styles.indicatorContainer}>
           {Array.from({ length: totalSteps }).map((_, index) => {
             const stepNumber = index + 1;
@@ -129,9 +122,7 @@ export default function OnboardingScreen() {
           })}
         </View>
 
-        {/* Area Tombol Navigasi Bawah */}
         <View style={styles.buttonContainer}>
-          {/* Tombol Kembali (Hanya muncul jika step > 1) */}
           {currentStep > 1 ? (
             <TouchableOpacity
               style={[styles.navButton, styles.backButton]}
@@ -144,7 +135,6 @@ export default function OnboardingScreen() {
             <></>
           )}
 
-          {/* Tombol Lanjutkan / Mulai */}
           <TouchableOpacity
             style={[styles.navButton, styles.nextButton]}
             onPress={handleNext}
@@ -163,7 +153,7 @@ export default function OnboardingScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFECC8", // Latar belakang pastel hangat serasi dengan splash screen
+    backgroundColor: "#FFECC8", 
   },
   header: {
     height: 50,
@@ -175,7 +165,7 @@ const styles = StyleSheet.create({
   skipText: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#6F614B", // Warna cokelat gelap yang kontras tapi lembut
+    color: "#6F614B", 
   },
   contentContainer: {
     flex: 1,
@@ -198,7 +188,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 4,
   },
   indicatorActive: {
-    width: 24, // Efek memanjang seperti kapsul untuk halaman aktif
+    width: 24, 
     backgroundColor: "#3E3224",
   },
   indicatorInactive: {
@@ -206,12 +196,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#E6D3B3",
   },
   buttonContainer: {
-    flexDirection: "row", // Membuat tombol berjajar ke samping
+    flexDirection: "row", 
     width: width - 48,
-    gap: 16, // Jarak antar tombol
+    gap: 16, 
   },
   navButton: {
-    flex: 1, // Agar kedua tombol punya lebar yang sama (50:50)
+    flex: 1, 
     height: 56,
     borderRadius: 16,
     justifyContent: "center",
@@ -220,7 +210,7 @@ const styles = StyleSheet.create({
   backButton: {
     backgroundColor: "transparent",
     borderWidth: 1,
-    borderColor: "#3E3224", // Outline cokelat arang
+    borderColor: "#3E3224", 
   },
   nextButton: {
     backgroundColor: "#3E3224",

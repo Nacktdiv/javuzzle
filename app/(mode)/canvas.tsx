@@ -98,8 +98,7 @@ export default function Canvas() {
 
     setProgress(progress)
 
-    if (activeIndex >= dataLevel.length) {
-      const finalProses = async () => {
+    const finalProses = async () => {
         try {
 
           const data = await UpdateSkorAndLevel({user, setUser, poin, level : level + 1})
@@ -131,7 +130,23 @@ export default function Canvas() {
           });
         }
       }
-      finalProses()
+
+    if (activeIndex >= dataLevel.length) {
+      if (user?.level != level) {
+        showAlert({
+          title: "SELAMAT!",
+          message: "Anda telah berhasil menyelesaikan tantangan ini, namun poin dan level tidak di update karena anda perna menyelesaikan tantangan ini.",
+          confirmText: "OK",
+          onConfirmPressed: () => {
+            setTimeout(() => {
+              router.replace("/(tabs)");
+            }, 250);
+          },
+        });
+      } else {
+        finalProses()
+      }
+      return
     }
   }, [activeIndex, dataLevel]);
 

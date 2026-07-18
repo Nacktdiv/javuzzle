@@ -41,6 +41,7 @@ export const globalDataContext = createContext<GlobalContextType>({
 });
 
 export default function RootLayout() {
+
   const [isReady, setIsReady] = useState(false);
   const [session, setSession] = useState<any>(null);
   const [hasStudyPlan, setHasStudyPlan] = useState<boolean | null>(null);
@@ -91,16 +92,16 @@ export default function RootLayout() {
   };
 
   useEffect(() => {
+    
     const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
+        data: { subscription },
+      } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
 
       if (session?.user) {
         checkUserProfile(session.user.id);
       } else {
         setHasStudyPlan(null);
-        // Kasih jeda sedikit agar splash screen tidak berkedip terlalu cepat
         setTimeout(() => setIsReady(true), 1500);
       }
     });
@@ -111,6 +112,11 @@ export default function RootLayout() {
   }, []);
 
   useEffect(() => {
+    if (error) {
+      console.error('error during load fonts: ', error)
+
+    }
+
     if (!session && loaded) {
       setIsReady(true);
       return;
@@ -126,7 +132,7 @@ export default function RootLayout() {
 
     const currentSegment = segments[0];
 
-    // Jika BELUM LOGIN sama sekali
+
     if (!session) {
       if (currentSegment !== "auth") {
         router.replace("/auth");
@@ -134,15 +140,12 @@ export default function RootLayout() {
       return;
     }
 
-    // Jika SUDAH LOGIN
     if (session) {
       if (hasStudyPlan === false) {
-        // 🟥 KONDISI 1: Belum isi study_plan -> KURUNG di onboarding
         if (currentSegment !== "onboarding") {
           router.replace("/onboarding");
         }
       } else if (hasStudyPlan === true) {
-        // 🟩 KONDISI 2: Sudah isi study_plan -> Boleh ke tabs/mode, JANGAN boleh ke auth/onboarding
         if (currentSegment === "auth" || currentSegment === "onboarding") {
           router.replace("/(tabs)");
         }

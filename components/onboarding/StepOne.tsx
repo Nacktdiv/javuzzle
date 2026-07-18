@@ -30,10 +30,10 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
     color: '#3E3224',
     textAlign: 'center',
     marginBottom: 16,
+    fontFamily: "Fraunces-Bold"
   },
   subtitle: {
     fontSize: 15,

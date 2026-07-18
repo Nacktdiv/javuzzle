@@ -14,14 +14,14 @@
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.nactdiv.javuzzle",
+      "bundleIdentifier": "com.nacktdiv.javuzzle",
       "newArchEnabled": true,
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
-      "package": "com.nactdiv.javuzzle",
+      "package": "com.nacktdiv.javuzzle",
       "versionCode": 1,
       "permissions": [
         "CAMERA"

@@ -112,7 +112,7 @@ export const MakeImageBufferPerPiece = (
 export const AnalyzeImageBuffer = async (
   pixelBuffer: Uint8Array, 
   tfliteModel: any
-): Promise<PredictionResult> => {
+): Promise<PredictionResult[]> => {
   const inputSize = 64;
   const inputArray = new Float32Array(inputSize * inputSize * 3);
   let inputIdx = 0;
@@ -125,24 +125,33 @@ export const AnalyzeImageBuffer = async (
 
   const outputs = await tfliteModel.run([inputArray.buffer]);
 
-    if (outputs && outputs[0]) {
-      const bytes = outputs[0].byteLength;
-      const jumlahKelas = bytes / 4; 
+  if (outputs && outputs[0]) {
+    const bytes = outputs[0].byteLength;
+    const jumlahKelas = bytes / 4; 
   }
 
   let probabilities = new Float32Array(outputs[0]?.buffer ?? outputs[0][0] ?? outputs[0]);
 
-  let maxIdx = 0;
-  let maxVal = probabilities[0];
-  for (let i = 1; i < probabilities.length; i++) {
-    if (probabilities[i] > maxVal) {
-      maxVal = probabilities[i];
-      maxIdx = i;
-    }
-  }
+  // let maxIdx = 0;
+  // let maxVal = probabilities[0];
+  // for (let i = 1; i < probabilities.length; i++) {
+  //   if (probabilities[i] > maxVal) {
+  //     maxVal = probabilities[i];
+  //     maxIdx = i;
+  //   }
+  // } 
 
-  return {
-    prediction: CLASS_NAMES[maxIdx] || "Tidak Diketahui",
-    confidence: parseFloat((maxVal * 100).toFixed(2))
-  };
+  let result : PredictionResult[] = []
+  for (let i = 1; i < probabilities.length; i++) {
+    result.push({prediction: CLASS_NAMES[i], confidence : probabilities[i]})
+  }
+  result.sort((a, b) => b.confidence - a.confidence).map((item, index) => item.confidence = parseFloat((item.confidence * 100).toFixed(2)))
+  const data = result.slice(0, 5)
+  
+  // return {
+  //   prediction: CLASS_NAMES[maxIdx] || "Tidak Diketahui",
+  //   confidence: parseFloat((maxVal * 100).toFixed(2))
+  // };
+
+  return data
 };

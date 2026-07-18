@@ -79,7 +79,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontFamily: 'Playfair-Display-Bold',
     color: '#3E3224',
     textAlign: 'center', 
   }, 

@@ -35,21 +35,21 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
     top: '35%',
     transform: [{ translateY: '-50%' }],
-    left: -50,
+    right: 40,
   },
   spacer: {
     height: 300,
   },
   textContainer: {
     // flex:1,
-    justifyContent: 'flex-start', // Mengatur semua teks pas di tengah vertikal ruang kosong
+    justifyContent: 'flex-start', 
     alignItems: 'center',
     paddingHorizontal: 40,
-    gap: 5,      // Memaksa teks berada di lapisan paling depan
+    gap: 5,     
   },
   title: {
-    fontSize: 34,
-    fontWeight: 'bold',
+    fontSize: 28,
+    fontFamily: 'Fraunces-Bold',
     color: '#3E3224',
     textAlign: 'center',
   },
@@ -58,5 +58,6 @@ const styles = StyleSheet.create({
     color: '#6F614B',
     textAlign: 'center',
     lineHeight: 24,
+    fontFamily: 'Playfair-Display-Bold'
   },
 });

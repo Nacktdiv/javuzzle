@@ -42,29 +42,14 @@ export default function PuzzleMode () {
 
       setProgress((activePart + 1) / dataLevel.length)
 
-      if (activePart >= dataLevel.length) {
-        const finalProses = async () => {
-          try {
-            const data = await UpdateSkorAndLevel({user, setUser, poin, level : level + 1})
-  
-            if (data) {
-              showAlert({
-                title: "SELAMAT!",
-                message: "Anda telah berhasil menyelesaikan tantangan pada level ini",
-                confirmText: "OK",
-                onConfirmPressed: () => {
-                  setTimeout(() => {
-                    router.replace("/(tabs)");
-                  }, 250);
-                },
-              });
-            }
-          } catch (err) {
-            if (!err) return 
-            const errorMessage = String(err) 
+      const finalProses = async () => {
+        try {
+          const data = await UpdateSkorAndLevel({user, setUser, poin, level : level + 1})
+
+          if (data) {
             showAlert({
-              title: "ErrorCanvas",
-              message: errorMessage,
+              title: "SELAMAT!",
+              message: "Anda telah berhasil menyelesaikan tantangan pada level ini",
               confirmText: "OK",
               onConfirmPressed: () => {
                 setTimeout(() => {
@@ -73,8 +58,37 @@ export default function PuzzleMode () {
               },
             });
           }
+        } catch (err) {
+          if (!err) return 
+          const errorMessage = String(err) 
+          showAlert({
+            title: "ErrorCanvas",
+            message: errorMessage,
+            confirmText: "OK",
+            onConfirmPressed: () => {
+              setTimeout(() => {
+                router.replace("/(tabs)");
+              }, 250);
+            },
+          });
         }
-        finalProses()
+      }
+
+      if (activePart >= dataLevel.length) {
+        if (user?.level != level) {
+          showAlert({
+            title: "SELAMAT!",
+            message: "Anda telah berhasil menyelesaikan tantangan ini, namun poin dan level tidak di update karena anda perna menyelesaikan tantangan ini.",
+            confirmText: "OK",
+            onConfirmPressed: () => {
+              setTimeout(() => {
+                router.replace("/(tabs)");
+              }, 250);
+            },
+          });
+        } else {
+          finalProses()
+        }
         return;
       }
 

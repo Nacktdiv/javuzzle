@@ -7,9 +7,7 @@ import * as NavigationBar from 'expo-navigation-bar';
 export default function TabsLayout() {
 
   useEffect(() => {
-    // Pastikan fungsi ini hanya berjalan di Android (karena iOS tidak punya tombol ini)
     if (Platform.OS === 'android') {
-      // PILIHAN A: Sembunyikan total (Akan muncul sedikit jika user swipe layar dari bawah ke atas)
       NavigationBar.setVisibilityAsync("hidden");
       NavigationBar.setBehaviorAsync("overlay-swipe");
     }
