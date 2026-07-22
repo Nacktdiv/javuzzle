@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, View, Dimensions } from 'react-native';
+import { Colors } from '@/config/colors';
 import type { UserType } from '@/app/(tabs)/leaderboard';
 
 interface LeaderboardCardProps {
@@ -11,7 +12,7 @@ const { width } = Dimensions.get('window');
 
 export default function LeaderboardCard({ user, rank }: LeaderboardCardProps) {
   const isTopRank = rank <= 3;
-  const rankColors = ['#FFD700', '#C0C0C0', '#CD7F32']; 
+  const rankColors = ['#FFD700', '#C0C0C0', Colors.orange]; 
   
   return (
     <View style={styles.card}>
@@ -43,15 +44,15 @@ const styles = StyleSheet.create({
   card: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: Colors.gold,
     borderWidth: 2,
-    borderColor: '#6f411d',
+    borderColor: Colors.borderDark,
     borderRadius: 12,
     paddingVertical: width * 0.035, 
     paddingHorizontal: 16,
     marginVertical: 6,
     elevation: 2,
-    shadowColor: '#6f411d',
+    shadowColor: Colors.borderDark,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 3,
@@ -66,10 +67,10 @@ const styles = StyleSheet.create({
   rankText: {
     fontSize: 16,
     fontFamily: 'Fraunces-Bold',
-    color: '#6f411d',
+    color: Colors.text,
   },
   topRankText: {
-    color: '#fff',
+    color: Colors.text,
     fontSize: 18,
     textShadowColor: 'rgba(0,0,0,0.3)',
     textShadowOffset: { width: 0, height: 1 },
@@ -82,13 +83,13 @@ const styles = StyleSheet.create({
   nameText: {
     fontSize: 16,
     fontFamily: 'Playfair-Display-Bold',
-    color: '#3E3224', 
+    color: Colors.text, 
     marginBottom: 2,
   },
   levelText: {
     fontSize: 13,
     fontFamily: 'Balthazar-Regular',
-    color: '#cb9163', 
+    color: Colors.text, 
   },
   scoreContainer: {
     // alignItems: 'trailing',
@@ -97,13 +98,13 @@ const styles = StyleSheet.create({
   scoreText: {
     fontSize: 18,
     fontFamily: 'Fraunces-Bold',
-    color: '#6f411d',
+    color: Colors.text,
     textAlign: 'right',
   },
   ptsLabel: {
     fontSize: 11,
     fontFamily: 'Balthazar-Regular',
-    color: '#3E3224',
+    color: Colors.text,
     textAlign: 'right',
   },
 });

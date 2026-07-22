@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
+import { Colors } from '@/config/colors';
+
 interface FormProps {
   isLoginMode: boolean;
   onSubmit: (data: { fullName?: string; email: string; password: string }) => void;
@@ -23,11 +25,11 @@ export default function Form({ isLoginMode, onSubmit }: FormProps) {
         <>
           <Text style={styles.label}>Nama Lengkap</Text>
           <View style={styles.inputContainer}>
-            <Ionicons name="person-outline" size={20} color="#6f411d" style={styles.inputIcon} />
+            <Ionicons name="person-outline" size={20} color={Colors.primary} style={styles.inputIcon} />
             <TextInput 
               style={styles.input}
               placeholder="Masukkan nama lengkap kamu"
-              placeholderTextColor="#a18262"
+              placeholderTextColor={Colors.secondary}
               value={fullName}
               onChangeText={setFullName}
               autoCapitalize="words"
@@ -38,11 +40,11 @@ export default function Form({ isLoginMode, onSubmit }: FormProps) {
 
       <Text style={styles.label}>Email</Text>
       <View style={styles.inputContainer}>
-        <Ionicons name="mail-outline" size={20} color="#6f411d" style={styles.inputIcon} />
+        <Ionicons name="mail-outline" size={20} color={Colors.primary} style={styles.inputIcon} />
         <TextInput 
           style={styles.input}
           placeholder="Masukkan email kamu"
-          placeholderTextColor="#a18262"
+          placeholderTextColor={Colors.secondary}
           value={email}
           onChangeText={setEmail}
           keyboardType="email-address"
@@ -52,18 +54,18 @@ export default function Form({ isLoginMode, onSubmit }: FormProps) {
 
       <Text style={styles.label}>Kata Sandi</Text>
       <View style={styles.inputContainer}>
-        <Ionicons name="lock-closed-outline" size={20} color="#6f411d" style={styles.inputIcon} />
+        <Ionicons name="lock-closed-outline" size={20} color={Colors.primary} style={styles.inputIcon} />
         <TextInput 
           style={styles.input}
           placeholder="Masukkan kata sandi"
-          placeholderTextColor="#a18262"
+          placeholderTextColor={Colors.secondary}
           value={password}
           onChangeText={setPassword}
           secureTextEntry={secureText}
           autoCapitalize="none"
         />
         <TouchableOpacity onPress={() => setSecureText(!secureText)}>
-          <Ionicons name={secureText ? "eye-off-outline" : "eye-outline"} size={20} color="#6f411d" />
+          <Ionicons name={secureText ? "eye-off-outline" : "eye-outline"} size={20} color={Colors.primary} />
         </TouchableOpacity>
       </View>
 
@@ -89,7 +91,7 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     fontFamily: 'Fraunces-Bold',
-    color: '#6f411d',
+    color: Colors.primary,
     marginBottom: 8,
   },
   inputContainer: {
@@ -97,7 +99,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#FFF',
     borderWidth: 2,
-    borderColor: '#cb9163',
+    borderColor: Colors.primary,
     borderRadius: 10,
     paddingHorizontal: 12,
     height: 50,
@@ -108,7 +110,7 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    color: '#6f411d',
+    color: Colors.textDark,
     fontSize: 18,
     fontFamily: 'Balthazar-Regular',
   },
@@ -117,18 +119,18 @@ const styles = StyleSheet.create({
     marginBottom: 25,
   },
   forgotText: {
-    color: '#6f411d',
+    color: Colors.gold,
     fontFamily: 'Fraunces-Bold',
     fontSize: 14,
   },
   loginButton: {
-    backgroundColor: '#cb9163',
+    backgroundColor: Colors.secondary,
     height: 52,
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
     borderBottomWidth: 4,
-    borderBottomColor: '#6f411d', 
+    borderBottomColor: Colors.primary, 
     marginTop: 10,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },

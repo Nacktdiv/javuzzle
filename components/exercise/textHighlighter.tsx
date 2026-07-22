@@ -1,6 +1,8 @@
 import React from 'react';
 import { Text, StyleSheet } from 'react-native';
 
+import { Colors } from '@/config/colors';
+
 interface FormatTextProps {
   kalimat: string;
   indexActive: number;
@@ -68,13 +70,13 @@ const styles = StyleSheet.create({
   normalText: {
     fontSize: 24,
     fontFamily: 'Fraunces-Bold',
-    color: '#6f411d'
+    color: Colors.primary
   },
   highlightText: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#cb9163',
-    backgroundColor: '#6f411d',
+    color: Colors.border,
+    backgroundColor: Colors.borderDark,
     borderRadius: 4, 
   },
 });

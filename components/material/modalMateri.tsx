@@ -1,6 +1,7 @@
 import React from 'react';
 import { Modal, StyleSheet, Text, TouchableOpacity, View, ScrollView, Image } from 'react-native';
 
+import { Colors } from '@/config/colors';
 import { MateriType } from './dataMateri'
 
 type Props = {
@@ -69,17 +70,17 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   modalContent: {
-    backgroundColor: '#FFECC8',
+    backgroundColor: Colors.background,
     borderTopLeftRadius: 25,
     borderTopRightRadius: 25,
     padding: 24,
     maxHeight: '80%',
     borderTopWidth: 5,
-    borderColor: '#6f411d',
+    borderColor: Colors.borderDark,
   },
   closeButton: {
     alignSelf: 'flex-end',
-    backgroundColor: '#cb9163',
+    backgroundColor: Colors.orange,
     width: 30,
     height: 30,
     borderRadius: 15,
@@ -87,7 +88,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   closeButtonText: {
-    color: '#fff',
+    color: Colors.text,
     fontWeight: 'bold',
   },
   headerContainer: {
@@ -100,35 +101,35 @@ const styles = StyleSheet.create({
     aspectRatio: 1
   },
   detailLatin: {
-    fontSize: 22,
+    fontSize: 26,
     fontFamily: 'Fraunces-Bold',
-    color: '#3E3224',
+    color: Colors.accent,
     marginTop: 5,
   },
   section: {
-    backgroundColor: '#fff',
+    backgroundColor: Colors.backgroundDark,
     borderRadius: 12,
     padding: 15,
     marginBottom: 15,
     borderWidth: 2,
-    borderColor: '#cb9163',
+    borderColor: Colors.borderDark,
   },
   sectionTitle: {
     fontSize: 16,
     fontFamily: 'Fraunces-Bold',
-    color: '#6f411d',
+    color: Colors.accent,
     marginBottom: 8,
   },
   bodyText: {
     fontSize: 16,
     fontFamily: 'Balthazar-Regular',
-    color: '#3E3224',
+    color: Colors.textDark,
     lineHeight: 22,
   },
   universalRow: {
     paddingVertical: 6,
     borderBottomWidth: 1,
-    borderBottomColor: '#FFECC8',
+    borderBottomColor: Colors.borderDark,
   },
   komponenContainerHeader: {
     gap:5,
@@ -136,7 +137,7 @@ const styles = StyleSheet.create({
   },
   komponenKata: {
     fontSize: 16,
-    color: '#6f411d',
+    color: Colors.textDark,
     fontFamily: 'Fraunces-Bold',
   },
   komponenContainerImage: {
@@ -144,7 +145,7 @@ const styles = StyleSheet.create({
     height: '100%',
     // flex:1,
     borderWidth: 2,
-    borderColor: '#6f411d'
+    borderColor: Colors.borderDark
   }, 
   komponenImage: {
     width: '100%',
@@ -153,12 +154,12 @@ const styles = StyleSheet.create({
   },
   contohKata: {
     fontSize: 20,
-    color: '#6f411d',
+    color: Colors.textDark,
     fontFamily: 'Fraunces-Bold',
   },
   contohArti: {
     fontSize: 16,
-    color: '#555',
+    color: Colors.orange,
     fontFamily: 'Balthazar-Regular',
   },
 });

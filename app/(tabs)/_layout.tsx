@@ -4,6 +4,8 @@ import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import * as NavigationBar from 'expo-navigation-bar';
 
+import { Colors } from '@/config/colors';
+
 export default function TabsLayout() {
 
   useEffect(() => {
@@ -16,13 +18,13 @@ export default function TabsLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: '#3E3224',
-        tabBarInactiveTintColor: '#A08E75',
+        tabBarActiveTintColor: Colors.primaryDark,
+        tabBarInactiveTintColor: Colors.background,
         tabBarStyle: {
-          backgroundColor: '#FFF7E6', 
-          borderTopWidth: 1,
-          borderTopColor: '#E6D3B3',
-          paddingTop: 10,
+          backgroundColor: Colors.secondary, 
+          borderTopWidth: 4,
+          borderTopColor: Colors.borderDark,
+          paddingTop: 4,
           height: 80
         },
         tabBarItemStyle: {

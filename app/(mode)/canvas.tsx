@@ -4,6 +4,8 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 import { Asset } from "expo-asset";
 import { File, Paths } from "expo-file-system";
 
+import { Colors } from "@/config/colors";
+
 let loadTensorflowModel: any = null;
 let NitroModules: any = null;
 
@@ -94,7 +96,7 @@ export default function Canvas() {
   useEffect(() => {
     if (!dataLevel || !activeIndex) return;
 
-    const progress = (activeIndex + 1) / dataLevel.length * 100
+    const progress = (activeIndex) / dataLevel.length * 100
 
     setProgress(progress)
 
@@ -159,7 +161,7 @@ export default function Canvas() {
         {loading && (
           <ActivityIndicator
             size="large"
-            color="#00ff00"
+            color={Colors.orange}
             style={{ marginTop: 20 }}
           />
         )}
@@ -196,7 +198,7 @@ const styles = StyleSheet.create({
     gap: 20,
   },
   textContainer: {
-    backgroundColor: "#FFECC8",
+    backgroundColor: Colors.backgroundDark,
     padding: 10,
     justifyContent: "center",
     alignItems: "center",

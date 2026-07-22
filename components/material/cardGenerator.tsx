@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native';
 
+import { Colors } from '@/config/colors';
 import { MateriType } from './dataMateri';
 
 type Props = {
@@ -31,7 +32,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 15,
     borderWidth: 3,
-    borderColor: '#cb9163',
+    borderColor: Colors.gold,
     justifyContent: 'center',
     alignItems: 'center',
     gap:4,
@@ -47,10 +48,10 @@ const styles = StyleSheet.create({
     flex: 1, 
     aspectRatio: '1/1',
     borderWidth: 4,
-    borderColor: '#6E4720'
+    borderColor: Colors.borderDark
   },
   badge: {
-    backgroundColor: '#cb9163',
+    backgroundColor: Colors.accent,
     paddingHorizontal: 12,
     paddingVertical: 2,
     borderRadius: 20,
@@ -58,6 +59,6 @@ const styles = StyleSheet.create({
   latinText: {
     fontSize: 14,
     fontFamily: 'Fraunces-Bold',
-    color: '#fff',
+    color: Colors.text,
   },
 });

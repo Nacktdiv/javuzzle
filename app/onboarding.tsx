@@ -22,7 +22,7 @@ const { width } = Dimensions.get("window");
 
 export default function OnboardingScreen() {
   const { showAlert } = useCustomAlert();
-  const { user } = useContext(globalDataContext);
+  const { user, checkUserProfile } = useContext(globalDataContext);
   const [currentStep, setCurrentStep] = useState<number>(1);
   const router = useRouter();
   const totalSteps = 5;
@@ -40,6 +40,7 @@ export default function OnboardingScreen() {
           .from("users")
           .update({ study_plan: user?.study_plan })
           .eq("id", user?.id);
+
         if (error) {
           showAlert({
             title: "ErrorOnboarding",
@@ -53,6 +54,8 @@ export default function OnboardingScreen() {
       }
     } else {
       try {
+        if (user?.id === undefined || user.id === null) throw new Error
+        checkUserProfile(user.id)
         router.replace("/(tabs)");
       } catch (err) {
         if (!err) return;

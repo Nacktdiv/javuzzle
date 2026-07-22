@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { StyleSheet, Text, View, ScrollView, Dimensions } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { supabase } from '@/config/supabase'; 
 import { useCustomAlert } from '@/components/main/customAlert';
 
+import { Colors } from '@/config/colors';
 import { globalDataContext } from '@/app/_layout';
 import { useContext } from 'react';
 
@@ -140,7 +140,7 @@ export default function Profile() {
           onPress={() => setModalConfig({ visible: true, title: 'Setel Ulang Password', type: 'password' })} 
         />
 
-        <Text style={styles.sectionTitle}>Zona Berbahaya</Text>
+        <Text style={[styles.sectionTitle, styles.dangerSection]}>Zona Berbahaya</Text>
         <ProfileActionItem label="Reset Level & Poin Game" onPress={handleResetProgress} isDanger={true} />
         <ProfileActionItem label="Keluar (Logout)" onPress={handleLogout} isDanger={true} />
       </ScrollView>
@@ -160,14 +160,14 @@ export default function Profile() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFECC8',
+    backgroundColor: Colors.backgroundDark,
   },
   profileHeader: {
-    backgroundColor: '#cb9163', 
+    backgroundColor: Colors.secondary, 
     alignItems: 'center',
     paddingVertical: 24,
     borderBottomWidth: 4,
-    borderBottomColor: '#6f411d', 
+    borderBottomColor: Colors.borderDark, 
     elevation: 4,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -178,9 +178,9 @@ const styles = StyleSheet.create({
     width: width * 0.22,
     height: width * 0.22,
     borderRadius: (width * 0.22) / 2,
-    backgroundColor: '#fff4eb',
+    backgroundColor: Colors.orange,
     borderWidth: 3,
-    borderColor: '#6f411d',
+    borderColor: Colors.borderDark,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 12,
@@ -188,26 +188,26 @@ const styles = StyleSheet.create({
   avatarText: {
     fontSize: width * 0.09,
     fontFamily: 'Playfair-Display-Bold',
-    color: '#6f411d',
+    color: Colors.text,
   },
   nameText: {
     fontSize: 22,
-    fontFamily: 'Playfair-Display-Bold',
-    color: '#fff',
+    fontFamily: 'Fraunces-Bold',
+    color: Colors.text,
   },
   emailText: {
     fontSize: 14,
     fontFamily: 'Balthazar-Regular',
-    color: '#3E3224',
+    color: Colors.textDark,
     marginTop: 2,
   },
   statsContainer: {
     flexDirection: 'row',
-    backgroundColor: '#fff',
+    backgroundColor: Colors.orange,
     marginHorizontal: 16,
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: '#6f411d',
+    borderColor: Colors.borderDark,
     marginTop: -20,
     elevation: 3,
     shadowColor: '#6f411d',
@@ -218,7 +218,7 @@ const styles = StyleSheet.create({
   },
   divider: {
     width: 2,
-    backgroundColor: '#FFECC8',
+    backgroundColor: Colors.borderDark,
     marginVertical: 12,
   },
   menuContainer: {
@@ -229,9 +229,12 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontFamily: 'Fraunces-Bold',
-    color: '#cb9163',
+    color: Colors.gold,
     marginTop: 15,
     marginBottom: 8,
     alignSelf: 'flex-start',
   },
+  dangerSection: {
+    color: Colors.danger
+  }
 });

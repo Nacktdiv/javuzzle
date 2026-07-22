@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, FlatList, ActivityIndicator } from 'react-native';
 import { supabase } from '@/config/supabase'; 
+import { Colors } from '@/config/colors';
 import LeaderboardCard from '@/components/leaderboard/leaderboardCard';
 
 export type UserType = {
@@ -50,7 +51,7 @@ export default function LeaderboardScreen() {
       {/* Konten Utama */}
       {loading ? (
         <View style={styles.centerContainer}>
-          <ActivityIndicator size="large" color="#6f411d" />
+          <ActivityIndicator size="large" color={Colors.primary} />
         </View>
       ) : (
         <FlatList
@@ -72,16 +73,16 @@ export default function LeaderboardScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFECC8', 
+    backgroundColor: Colors.backgroundDark, 
   },
   header: {
-    backgroundColor: '#cb9163',
+    backgroundColor: Colors.secondary,
     paddingHorizontal: 20,
     paddingTop: 20,
     paddingBottom: 10,
     marginBottom: 20,
     borderBottomWidth: 4,
-    borderBottomColor: '#6f411d',
+    borderBottomColor: Colors.borderDark,
     height: 100,
     justifyContent: 'center',
     alignItems: 'center'
@@ -89,13 +90,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 26,
     fontFamily: 'Playfair-Display-Bold',
-    color: '#fff',
+    color: Colors.text,
   },
   subtitle: {
     fontSize: 16,
     fontFamily: 'Balthazar-Regular',
     textAlign: 'center',
-    color: '#3E3224',
+    color: Colors.textDark,
     marginTop: 4,
   },
   listContainer: {

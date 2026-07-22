@@ -54,12 +54,12 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (Platform.OS === "android") {
-      NavigationBar.setVisibilityAsync("hidden");
-      NavigationBar.setBehaviorAsync("overlay-swipe");
+      NavigationBar.setVisibilityAsync("hidden").catch(() => {});
+      // NavigationBar.setBehaviorAsync("overlay-swipe");
     }
   }, []);
 
-  const [loaded, error] = useFonts({
+  const [loadedFonts, errorLoadedFonts] = useFonts({
     "Playfair-Display-Regular": PlayfairDisplay_400Regular,
     "Playfair-Display-Bold": PlayfairDisplay_700Bold,
     "Fraunces-Regular": Fraunces_400Regular,
@@ -92,18 +92,16 @@ export default function RootLayout() {
   };
 
   useEffect(() => {
-    
-    const {
-        data: { subscription },
-      } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription }} = supabase.auth.onAuthStateChange((event, session) => {
+      
       setSession(session);
 
       if (session?.user) {
-        checkUserProfile(session.user.id);
-      } else {
-        setHasStudyPlan(null);
-        setTimeout(() => setIsReady(true), 1500);
-      }
+          checkUserProfile(session.user.id);
+        } else {
+          setHasStudyPlan(null);
+          setTimeout(() => setIsReady(true), 1500);
+        }
     });
 
     return () => {
@@ -112,26 +110,25 @@ export default function RootLayout() {
   }, []);
 
   useEffect(() => {
-    if (error) {
-      console.error('error during load fonts: ', error)
+    if (errorLoadedFonts) {
+      console.error('error during load fonts: ', errorLoadedFonts)
 
     }
 
-    if (!session && loaded) {
+    if (!session && loadedFonts) {
       setIsReady(true);
       return;
     }
 
-    if (session && hasStudyPlan !== null && !isLoadingProfile && loaded) {
+    if (session && hasStudyPlan !== null && !isLoadingProfile && loadedFonts) {
       setIsReady(true);
     }
-  }, [session, hasStudyPlan, isLoadingProfile, loaded]);
+  }, [session, hasStudyPlan, isLoadingProfile, loadedFonts]);
 
   useEffect(() => {
     if (!isReady || isLoadingProfile) return;
 
     const currentSegment = segments[0];
-
 
     if (!session) {
       if (currentSegment !== "auth") {

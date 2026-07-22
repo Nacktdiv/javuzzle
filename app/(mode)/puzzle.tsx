@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 import { StyleSheet, View, Image } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router"
 
+import { Colors } from "@/config/colors";
 import { globalDataContext } from "@/app/_layout";
 import { ModeContext } from "@/app/(mode)/_layout";
 import { useCustomAlert } from "@/components/main/customAlert";
@@ -30,6 +31,12 @@ export default function PuzzleMode () {
     const [activePart, setActivePart] = useState<number>(0);
     const [gridItems, setGridItems] = useState<TilesType[]>([]);
     const [chooseComponent, setChooseComponent] = useState<TilesType[]>([]);
+    const [answerContainerLength, setAnswerContainerLength] = useState<number>(0)
+
+    // console.log(dataLevel)
+    // console.log(gridItems)
+    // console.log(chooseComponent)
+    // console.log(Object.values(dataLevel[activePart])[0])
 
     useEffect(() => {
       const generateData = DataPuzzleGenerator(question);
@@ -40,7 +47,9 @@ export default function PuzzleMode () {
     useEffect(() => {
       if (!dataLevel) return;
 
-      setProgress((activePart + 1) / dataLevel.length)
+      const progress = (activePart) / dataLevel.length * 100
+
+      setProgress(progress)
 
       const finalProses = async () => {
         try {
@@ -95,6 +104,9 @@ export default function PuzzleMode () {
       const komponenSukuKata: ComponentType[] = Object.values(dataLevel[activePart])[0] as any;
       const generateRandomGrid = RandomTilesGenerator(komponenSukuKata);
       setGridItems(generateRandomGrid);
+
+      const lengthAnswerContainer : number = (komponenSukuKata.length * (75 + 10)) - 10
+      setAnswerContainerLength(lengthAnswerContainer)
     }, [activePart, dataLevel]);
 
     useEffect(() => {
@@ -106,13 +118,17 @@ export default function PuzzleMode () {
         const apakahSemuaBenar = chooseComponent.every(
           (val, index) => val.nama === komponenSukuKata[index].nama
         );
-
+        
+        let timer: ReturnType<typeof setTimeout>;
         if (apakahSemuaBenar) {
-          setChooseComponent([])
-          setActivePart((prev) => prev + 1);
+          timer = setTimeout(() => {
+            setChooseComponent([]);
+            setActivePart((prev) => prev + 1);
+          }, 1000);
         } else {
-         
-          setChooseComponent([])
+          timer = setTimeout(() => {
+            setChooseComponent([]);
+          }, 1000);
         }
       }
     }, [chooseComponent, activePart, dataLevel]);
@@ -123,12 +139,14 @@ export default function PuzzleMode () {
             <View style={styles.upQuestionContainer}>
               <TeksHighlight kalimat={question} indexActive={activePart}/>
             </View>
-            <View style={styles.upAnswerContainer}>
-              {chooseComponent?.map((item, index) => (
-                <View style={styles.upAnswerItem} key={index}>
-                    <Image style={styles.upAnswerItemImage} source={item.image} />
-                </View>
-              ))}
+            <View style={styles.upAnswerMainContainer}>
+              <View style={[styles.upAnswerChildContainer, {width: answerContainerLength}]} >
+                {chooseComponent?.map((item, index) => (
+                  <View style={styles.upAnswerItem} key={index}>
+                      <Image style={styles.upAnswerItemImage} source={item.image} />
+                  </View>
+                ))}
+              </View>
             </View>
         </View>
         <View style={styles.downContainer}>
@@ -155,27 +173,37 @@ const styles = StyleSheet.create({
     gap: 20
   },
   upQuestionContainer: {
-    width: '80%',
-    backgroundColor: '#cb9163',
+    backgroundColor: Colors.backgroundDark,
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 10
   },  
-  upAnswerContainer: {
+  upAnswerMainContainer: {
     flex: 1,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    // width: ,
+    // height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#cb9163',
+  },
+  upAnswerChildContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    backgroundColor: Colors.orange,
     gap: 10,
     padding: 10,
+    minHeight: 75,
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    borderRadius: 10,
+    boxSizing: 'content-box'
+    // height: 50,
   },
   upAnswerItem: {
-    width: 50,
+    width: 75,
+    boxSizing: 'border-box',
     borderWidth: 4,
-    borderColor: '#6f411d',
+    borderColor: Colors.border,
     aspectRatio: '1/1',
   }, 
   upAnswerItemImage: {
@@ -186,7 +214,8 @@ const styles = StyleSheet.create({
   downContainer: {
     width: "100%",
     aspectRatio: "1/1",
-    backgroundColor: "#cb9163",
-    padding: 10,
+    backgroundColor: Colors.border,
+    // padding: 10,
+    borderRadius: 10
   }
 });

@@ -1,12 +1,20 @@
 import React, { useState, createContext } from 'react'
 import { View, StyleSheet, Text, TouchableOpacity } from 'react-native'
-import { useRouter,  Slot } from 'expo-router'
+import { useRouter,  Slot, useLocalSearchParams} from 'expo-router'
 import { Ionicons } from '@expo/vector-icons';
+
+import { Colors } from '@/config/colors';
+
 import ProgressBar from '@/components/main/progressBar';
 
 export const ModeContext = createContext<any>(null)
 
 export default function ModeLayout () {
+    const { question, level: levelParam, poin: poinParam } = useLocalSearchParams<{ 
+        question: string; 
+        level: string; 
+        poin: string; 
+    }>();
     const router = useRouter()
 
     const [progress, setProgress] = useState<number>(0)
@@ -25,11 +33,11 @@ export default function ModeLayout () {
                             }
                         }}    
                     >
-                        <Ionicons name="caret-back" size={26} color='#6f411d'/>
+                        <Ionicons name="caret-back" size={26} color={Colors.text}/>
                     </TouchableOpacity>
                     <View style={[styles.headerComponent, {marginHorizontal: 20}]}>
-                        <Ionicons name='game-controller' size={26} color='#FFECC8' />
-                        <Text style={[styles.headerComponentText, {color: '#FFECC8'}]}>Level 1</Text>
+                        <Ionicons name='game-controller' size={26} color={Colors.gold} />
+                        <Text style={[styles.headerComponentText, {color: `${Colors.text}`}]}>Level {levelParam}</Text>
                     </View>
                     
                     <View style={[styles.headerComponent, {flex: 1}]}>
@@ -47,15 +55,15 @@ export default function ModeLayout () {
 const styles = StyleSheet.create({
     mainContainer : {
         flex: 1,
-        backgroundColor: '#6f411d'
+        backgroundColor: Colors.primary
     },
     header: {
-        backgroundColor: '#cb9163', 
+        backgroundColor: Colors.border, 
         paddingHorizontal: 20,
         paddingTop: 20,
         paddingBottom: 10,
         borderBottomWidth: 4,
-        borderBottomColor: '#6f411d',
+        borderBottomColor: Colors.borderDark,
         height: 70,
         flexDirection: 'row',
         alignItems: 'center',
@@ -73,7 +81,7 @@ const styles = StyleSheet.create({
         height : '100%',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor : '#FFECC8',
+        backgroundColor : Colors.gold,
         borderRadius: 10
     },
     headerComponentText: {

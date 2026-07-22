@@ -1,6 +1,8 @@
 import { View, Animated, StyleSheet } from 'react-native'
 import { useRef, useEffect } from 'react'
 
+import { Colors } from '@/config/colors'
+
 type mainType = {
     progress: number 
 }
@@ -43,12 +45,14 @@ const styles = StyleSheet.create({
         height: 20,
         width: '100%',
         borderRadius: 10,
-        backgroundColor: '#e0e0e0',
-        overflow: 'hidden'
+        backgroundColor: Colors.background,
+        overflow: 'hidden',
+        borderWidth: 2,
+        borderColor: Colors.backgroundDark
     }, 
     progressBar : {
         height: '100%',
         borderRadius: 10,
-        backgroundColor: '#6E4720'
+        backgroundColor: Colors.orange
     }
 })

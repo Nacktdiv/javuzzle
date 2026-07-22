@@ -27,12 +27,12 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: width * 0.05,
     fontFamily: 'Fraunces-Bold',
-    color: '#6f411d',
+    color: '#FFECC8',
   },
   statLabel: {
     fontSize: 13,
     fontFamily: 'Balthazar-Regular',
-    color: '#3E3224',
+    color: '#FFECC8',
     marginTop: 2,
   },
 });

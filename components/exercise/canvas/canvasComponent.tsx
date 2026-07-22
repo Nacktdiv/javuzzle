@@ -3,7 +3,9 @@ import { PanResponder, StyleSheet, Text, TouchableOpacity, View } from "react-na
 import { Canvas, Path, Rect, Skia, useCanvasRef,} from "@shopify/react-native-skia";
 
 import { useCustomAlert } from "@/components/main/customAlert";
-import { AnalyzeImageBuffer, MakeImageBufferPerPiece } from "./canvasMultiAnalyze";
+import { AnalyzeImageBuffer, MakeImageBufferPerPiece, MakeImageBufferFullCanvas } from "./canvasMultiAnalyze";
+
+import { Colors } from "@/config/colors";
 
 type CanvasType = {
   boxedModel: any;
@@ -69,89 +71,143 @@ export default function CanvasComponent({ boxedModel, activeIndex, setActiveInde
   };
 
   const handleAnalyzeCanvas = async () => {
-    if (!boxedModel) {
-      return;
-    }
-    if (paths.length === 0) {
-      return;
-    }
+    if (!boxedModel || paths.length === 0) return;
 
-    const model = boxedModel.unbox()
-
+    const model = boxedModel.unbox();
     setLoading(true);
+
     try {
+      // ------------------------------------------------------------------------
+      // SKENARIO 1: HANYA 1 PATH (Langsung Full Canvas)
+      // ------------------------------------------------------------------------
+      if (paths.length === 1) {
+        const { pixelBuffer } = MakeImageBufferFullCanvas(
+          paths,
+          canvasDimensions.width,
+          canvasDimensions.height
+        );
+        // Beri sedikit jeda waktu sebelum analisis
+        await new Promise((resolve) => setTimeout(resolve, 150));
+        const hasilPrediksi = await AnalyzeImageBuffer(pixelBuffer, model);
+
+        console.log(hasilPrediksi)
+
+        const messageList: string[] = [];
+        let isAllCorrect = true;
+
+        // Evaluasi hasil prediksi terhadap setiap target di dataActive
+        dataActive.forEach((targetAksara) => {
+          const foundIndex = hasilPrediksi.findIndex(
+            (res) => res.prediction === targetAksara
+          );
+
+          if (foundIndex === 0) {
+            messageList.push(`Tulisan untuk aksara ${targetAksara} sudah bagus. `);
+          } else if (foundIndex > 0) {
+            isAllCorrect = false;
+            messageList.push(`Tulisan yang kamu buat untuk aksara ${targetAksara} kurang rapi. `);
+          } else {
+            isAllCorrect = false;
+            messageList.push(`Aksara ${targetAksara} yang kamu gambar salah. `);
+          }
+        });
+
+        setLoading(false);
+
+        if (isAllCorrect) {
+          setActiveIndex((prev) => prev + 1);
+        } else {
+          showAlert({
+            title: "COBA LAGI!",
+            message: `${messageList.join('')}Semangat silahkan coba lagi!`,
+            confirmText: "OK",
+          });
+        }
+
+        return; // Selesai untuk skenario 1
+      }
+
+      // ------------------------------------------------------------------------
+      // SKENARIO 2: LEBIH DARI 1 PATH (Gunakan Per-Piece + Full Canvas)
+      // ------------------------------------------------------------------------
       const daftarPixelBuffer: Uint8Array[] = [];
 
+      // 1. Ekstrak buffer per-piece (setiap stroke individual)
       for (let i = 0; i < paths.length; i++) {
         const { pixelBuffer } = MakeImageBufferPerPiece(
           paths[i],
           canvasDimensions.width,
-          canvasDimensions.height,
+          canvasDimensions.height
         );
-
         daftarPixelBuffer.push(pixelBuffer);
       }
 
-      const daftarHasilPrediksi: {
-        prediction: string;
-        confidence: number;
-      }[][] = [];
+      // 2. Ekstrak buffer full-piece (seluruh stroke digabung)
+      const { pixelBuffer: fullBuffer } = MakeImageBufferFullCanvas(
+        paths,
+        canvasDimensions.width,
+        canvasDimensions.height
+      );
+      daftarPixelBuffer.push(fullBuffer);
+
+      // 3. Analisis seluruh image buffer yang terkumpul
+      const daftarHasilPrediksi: { prediction: string; confidence: number }[][] = [];
 
       for (let i = 0; i < daftarPixelBuffer.length; i++) {
         await new Promise((resolve) => setTimeout(resolve, 150));
-
         const hasil = await AnalyzeImageBuffer(daftarPixelBuffer[i], model);
         daftarHasilPrediksi.push(hasil);
       }
 
-      // const cekKebenaran = dataActive.every((item) =>
-      //   daftarHasilPrediksi.includes(item),
-      // );
-      const checker : any[] = [] 
-      dataActive.every(item => {
-        for (let i = 0; i < daftarHasilPrediksi.length; i++){
-          let status = false
-          for (let k = 0; k < daftarHasilPrediksi[i].length; k++){
-            if (daftarHasilPrediksi[i][k].prediction === item) {
-              checker.push({aksara : item, lokasi : [i, k]})
-              if (k == 1) status = true
-              break
+      console.log(daftarHasilPrediksi);
+
+      // 4. Evaluasi hasil terhadap dataActive (Soal/Target Aksara)
+      const messageList: string[] = [];
+      let isAllCorrect = true;
+
+      dataActive.forEach((targetAksara) => {
+        // Cari posisi targetAksara terbaik dari semua hasil prediksi buffer
+        let bestRank = -1; // -1 = tidak ditemukan, 0 = paling tepat, >0 = kurang rapi
+
+        for (let i = 0; i < daftarHasilPrediksi.length; i++) {
+          const predList = daftarHasilPrediksi[i];
+          const rank = predList.findIndex((item) => item.prediction === targetAksara);
+
+          if (rank !== -1) {
+            if (bestRank === -1 || rank < bestRank) {
+              bestRank = rank;
             }
           }
-          if (status) break
-          checker.push({aksara : item, lokasi : [i, -1]})
         }
-      })
 
-      let cekKebenaran = false
-      checker.map(item => {
-        if (item.lokasi[1] == 0) cekKebenaran = true
-      })
+        // Tentukan status berdasarkan rank terbaik yang terdeteksi
+        if (bestRank === 0) {
+          messageList.push(`Tulisan untuk aksara ${targetAksara} sudah bagus. `);
+        } else if (bestRank > 0) {
+          isAllCorrect = false;
+          messageList.push(`Tulisan yang kamu buat untuk aksara ${targetAksara} kurang rapi. `);
+        } else {
+          isAllCorrect = false;
+          messageList.push(`Aksara ${targetAksara} tidak ditemukan atau salah. `);
+        }
+      });
 
-      if (cekKebenaran) {
-        setLoading(false);
-        setActiveIndex((prev) => activeIndex + 1);
+      setLoading(false);
+
+      if (isAllCorrect) {
+        setActiveIndex((prev) => prev + 1);
       } else {
-        let messageList : string[] = []
-        checker.map(item => {
-          if (item.lokasi[1] == 0) {
-            messageList.push(`Tulisan untuk aksara ${item.aksara} sudah bagus. `)
-          } else if (item.lokasi[1] == -1){
-            messageList.push(`Tulisan yang kamu buat untuk aksara ${item.aksara} itu salah. `)
-          } else {
-            messageList.push(`Tulisan yang kamu buat untuk aksara ${item.aksara} kurang rapi. `)
-          }
-        })
-        const gabunganMessage = messageList.join('');
-        setLoading(false);
         showAlert({
           title: "COBA LAGI!",
-          message:
-            `${gabunganMessage}Semangat silahkan coba lagi`,
+          message: `${messageList.join('')}Semangat silahkan coba lagi!`,
           confirmText: "OK",
         });
       }
     } catch (err) {
+      setLoading(false);
+
+      console.error("DETAIL ERROR ANALYSIS:", err);
+
       showAlert({
         title: "ErrorMultiAnalyze",
         message:
@@ -213,7 +269,7 @@ const styles = StyleSheet.create({
     width: "100%",
     aspectRatio: "1/1",
     borderRadius: 20,
-    backgroundColor: "#cb9163",
+    backgroundColor: Colors.border,
     padding: 10,
     overflow: "hidden",
   },
@@ -229,7 +285,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   button: {
-    backgroundColor: "#cb9163",
+    backgroundColor: Colors.gold,
     width: 150,
     height: 65,
     borderRadius: 25,
@@ -239,6 +295,6 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 21,
     fontFamily: 'Fraunces-Bold',
-    color: "#6f411d",
+    color: Colors.text,
   },
 });

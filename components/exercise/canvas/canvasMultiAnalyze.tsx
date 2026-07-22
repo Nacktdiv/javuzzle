@@ -108,7 +108,81 @@ export const MakeImageBufferPerPiece = (
   return { pixelBuffer: pixelBuffer as Uint8Array};
 };
 
-// FUNGSI 2: Menganalisis buffer gambar masing masing yang telah dibuat
+// FUNGSI 2: Merender SEMUA PATH sekaligus pada posisi aslinya, lalu mengecilkan kanvas global ke 64x64
+export const MakeImageBufferFullCanvas = (
+  svgPathStrings: string[],
+  lebarKanvasAsli: number,
+  tinggiKanvasAsli: number
+): ProcessedStrokeResult => {
+  const targetSize = 64;
+
+  // 1. Buat surface virtual seukuran KANVAS ASLI
+  const surfaceAsli = Skia.Surface.Make(lebarKanvasAsli, tinggiKanvasAsli);
+  if (!surfaceAsli) throw new Error("Gagal membuat surface internal");
+  const canvasAsli = surfaceAsli.getCanvas();
+
+  // Warnai background PUTIH SOLID
+  const paintBg = Skia.Paint();
+  paintBg.setColor(Skia.Color('#ffffff'));
+  canvasAsli.drawRect(Skia.XYWHRect(0, 0, lebarKanvasAsli, tinggiKanvasAsli), paintBg);
+
+  // Setup Paint untuk stroke/garis
+  const paintStroke = Skia.Paint();
+  paintStroke.setColor(Skia.Color('#000000'));
+  paintStroke.setStyle(1); // Style stroke
+  paintStroke.setStrokeWidth(10); // Ketebalan proporsional kanvas besar
+  paintStroke.setStrokeCap(1); 
+  paintStroke.setStrokeJoin(1); 
+
+  // 2. Loop & gambar SEMUA path ke kanvas besar
+  svgPathStrings.forEach((svgPathString) => {
+    if (!svgPathString) return;
+    
+    const path = Skia.Path.MakeFromSVGString(svgPathString);
+    if (path) {
+      canvasAsli.drawPath(path, paintStroke);
+    }
+  });
+
+  // Ambil snapshot gambar gabungan ukuran penuh
+  const imageAsli = surfaceAsli.makeImageSnapshot();
+
+  // 3. RESCALE GAMBAR GABUNGAN KE 64x64
+  const surface64 = Skia.Surface.Make(targetSize, targetSize);
+  if (!surface64) throw new Error("Gagal membuat surface 64x64");
+  const canvas64 = surface64.getCanvas();
+
+  // Hitung skala pengecilan proporsional
+  const scaleX = targetSize / lebarKanvasAsli;
+  const scaleY = targetSize / tinggiKanvasAsli;
+  
+  const matrixScale = Skia.Matrix();
+  matrixScale.scale(scaleX, scaleY);
+
+  // Gunakan .concat(matrix) untuk menerapkan transformasi skala
+  canvas64.concat(matrixScale);
+  
+  // Gambar ulang snapshot gabungan ke kanvas 64x64
+  const paintCopy = Skia.Paint();
+  canvas64.drawImage(imageAsli, 0, 0, paintCopy);
+
+  // Ambil snapshot final 64x64
+  const imageFinal = surface64.makeImageSnapshot();
+
+  const imageInfo = {
+    width: targetSize,
+    height: targetSize,
+    colorType: ColorType.RGBA_8888,
+    alphaType: AlphaType.Unpremul,
+  };
+
+  const pixelBuffer = imageFinal.readPixels(0, 0, imageInfo);
+  if (!pixelBuffer) throw new Error("Gagal mengekstrak piksel");
+
+  return { pixelBuffer: pixelBuffer as Uint8Array };
+};
+
+// FUNGSI 3: Menganalisis buffer gambar masing masing yang telah dibuat
 export const AnalyzeImageBuffer = async (
   pixelBuffer: Uint8Array, 
   tfliteModel: any
@@ -142,9 +216,10 @@ export const AnalyzeImageBuffer = async (
   // } 
 
   let result : PredictionResult[] = []
-  for (let i = 1; i < probabilities.length; i++) {
+  for (let i = 0; i < probabilities.length; i++) {
     result.push({prediction: CLASS_NAMES[i], confidence : probabilities[i]})
   }
+
   result.sort((a, b) => b.confidence - a.confidence).map((item, index) => item.confidence = parseFloat((item.confidence * 100).toFixed(2)))
   const data = result.slice(0, 5)
   

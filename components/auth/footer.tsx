@@ -1,6 +1,8 @@
 import React from 'react';
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 
+import { Colors } from '@/config/colors';
+
 interface FooterProps {
   isLoginMode: boolean;
   onToggleMode: () => void;
@@ -28,12 +30,12 @@ const styles = StyleSheet.create({
     marginTop: 35,
   },
   footerText: {
-    color: '#a18262',
+    color: Colors.accent,
     fontSize: 18,
     fontFamily: 'Balthazar-Regular',
   },
   registerText: {
-    color: '#6f411d',
+    color: Colors.gold,
     fontFamily: 'Fraunces-Bold',
     fontSize: 14,
   },

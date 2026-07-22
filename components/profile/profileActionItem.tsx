@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, Dimensions } from 'react-native';
+import { Colors } from '@/config/colors';
 
 interface ProfileActionItemProps {
   label: string;
@@ -35,21 +36,21 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   normalButton: {
-    backgroundColor: '#fff',
-    borderColor: '#6f411d',
+    backgroundColor: Colors.gold,
+    borderColor: Colors.borderDark,
   },
   dangerButton: {
-    backgroundColor: '#fff4eb',
-    borderColor: '#7a2b2b',
+    backgroundColor: Colors.danger,
+    borderColor: Colors.borderDark,
   },
   buttonText: {
     fontSize: 15,
     fontFamily: 'Fraunces-Bold',
   },
   normalText: {
-    color: '#6f411d',
+    color: Colors.text,
   },
   dangerText: {
-    color: '#7a2b2b',
+    color: Colors.text,
   },
 });

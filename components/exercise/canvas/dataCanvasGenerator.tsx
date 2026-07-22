@@ -1,6 +1,6 @@
 
-import { MATERI_AKSARA } from "@/components/material/dataMateri";
-// import { MATERI_AKSARA } from "@/other/dataMateri2";
+import { MATERI_GABUNGAN } from "@/components/material/dataMateri";
+// import { MATERI_GABUNGAN } from "@/other/dataMateri2";
 
 export function Silabisasi(kata: string) {
   let hasil = kata.toLowerCase();
@@ -44,11 +44,11 @@ export default function DataCanvasGenerator(kalimat: string) {
         sukuKata = sukuKata.normalize("NFC")
         if (/^(ha|a)$/i.test(sukuKata)) {
           const obj = {
-            [sukuKata]: [MATERI_AKSARA[0].latin.toLowerCase()],
+            [sukuKata]: [MATERI_GABUNGAN[0].latin.toLowerCase()],
           };
           acc.push(obj);
         } else if (/^(i|u|e|ê|o)$/.test(sukuKata)) {
-          const komponenTambahan = MATERI_AKSARA.filter((item) => {
+          const komponenTambahan = MATERI_GABUNGAN.filter((item) => {
             const clearItemLatin = item.latin.replace(/a/g, "").toLowerCase().normalize("NFC")
             return sukuKata.includes(clearItemLatin);
           }).reduce<any>((cont, item) => {
@@ -57,13 +57,13 @@ export default function DataCanvasGenerator(kalimat: string) {
           }, []);
           const obj = {
             [sukuKata]: [
-              MATERI_AKSARA[0].latin.toLowerCase(),
+              MATERI_GABUNGAN[0].latin.toLowerCase(),
               ...komponenTambahan,
             ],
           };
           acc.push(obj);
         } else {
-          let komponen = MATERI_AKSARA.filter((item) => {
+          let komponen = MATERI_GABUNGAN.filter((item) => {
             const latinItem = item.latin.toLowerCase().normalize("NFC");
             if (/^(e|ê|i|u|o)$/.test(latinItem)) {
               if (latinItem === "e") {

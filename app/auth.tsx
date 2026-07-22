@@ -5,19 +5,24 @@ import { KeyboardAvoidingView, ScrollView, StyleSheet } from "react-native";
 import Footer from "@/components/auth/footer";
 import Form from "@/components/auth/form";
 import Header from "@/components/auth/header";
+
 import { useCustomAlert } from "@/components/main/customAlert";
+
+import { Colors } from "@/config/colors";
 import { supabase } from "@/config/supabase";
+
+type HandleAuthSubmitType = {
+  fullName?: string;
+  email: string;
+  password: string;
+}
 
 export default function AuthScreen() {
   const router = useRouter();
   const { showAlert } = useCustomAlert();
   const [isLoginMode, setIsLoginMode] = useState(true);
 
-  const handleAuthSubmit = async (formData: {
-    fullName?: string;
-    email: string;
-    password: string;
-  }) => {
+  const handleAuthSubmit = async (formData: HandleAuthSubmitType) => {
     const { fullName, email, password } = formData;
 
     if (isLoginMode) {
@@ -85,7 +90,7 @@ export default function AuthScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFECC8",
+    backgroundColor: Colors.background,
   },
   scrollContainer: {
     flexGrow: 1,

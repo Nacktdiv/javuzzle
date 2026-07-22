@@ -1,8 +1,9 @@
 import React, { useContext } from 'react';
-import { ScrollView, View, Text, TouchableOpacity, StyleSheet, Dimensions} from 'react-native';
+import { ScrollView, View, Text, TouchableOpacity, StyleSheet, Dimensions, ImageBackground} from 'react-native';
 import { useRouter } from 'expo-router'
 
 import { globalDataContext } from '@/app/_layout';
+import { Colors } from '@/config/colors';
 
 const { width } = Dimensions.get('window');
 
@@ -49,9 +50,9 @@ export default function LevelGenerator({ data }: { data: any[] }) {
                     const isActive = level.id === user.level
                     const isLocked = level.id > user.level;
 
-                    let buttonStyle = styles.btnLocked;
-                    if (isCompleted) buttonStyle = styles.btnCompleted;
-                    if (isActive) buttonStyle = styles.btnActive;
+                    let buttonType = require('../../assets/images/levelUnlocked.png')
+                    if (isCompleted) buttonType = require('../../assets/images/levelComplete.png')
+                    if (isActive) buttonType = require('../../assets/images/levelActive.png')
 
                     const marginLeftValue = getMarginLeft(globalLevelIndex);
                     globalLevelIndex++; 
@@ -69,7 +70,7 @@ export default function LevelGenerator({ data }: { data: any[] }) {
 
                         <TouchableOpacity
                           disabled={isLocked}
-                          style={[styles.levelButton, buttonStyle]}
+                          style={styles.levelButton}
                           activeOpacity={0.8}
                           onPress={() => router.push({
                             pathname: `/(mode)/${level.type}`,
@@ -80,7 +81,13 @@ export default function LevelGenerator({ data }: { data: any[] }) {
                             }
                           })}
                         >
-                          <Text style={styles.textLevelButton}>{level.level}</Text>
+                          <ImageBackground
+                            source={buttonType}
+                            style={styles.buttonStyle}
+                            resizeMode='cover'
+                          >
+                            <Text style={styles.textLevelButton}>{level.level}</Text>
+                          </ImageBackground>
                         </TouchableOpacity>
                       </View>
                     );
@@ -111,13 +118,13 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 16,
     borderBottomWidth: 4,
-    backgroundColor: '#8B5A2B',
-    borderBottomColor: '#6E4720',
+    backgroundColor: Colors.gold,
+    borderBottomColor: Colors.borderDark,
   },
   bagianHeadlineText: {
     fontSize: 18,
     fontFamily: 'Fraunces-Bold',
-    color: '#fff',
+    color: Colors.text,
     letterSpacing: 1,
   },
   unitContainer: {
@@ -131,7 +138,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   unitHeadlineText: {
-    color: '#3E3224',
+    color: Colors.textDark,
     fontSize: 16,
     fontFamily: 'Fraunces-Bold',
     marginRight: 5,
@@ -139,7 +146,7 @@ const styles = StyleSheet.create({
     textAlignVertical:'center'
   },
   unitHeadlineSubText: {
-    color: '#3E3224',
+    color: Colors.textDark,
     fontSize: 16,
     fontFamily: 'Fraunces-Bold',
     marginTop: 2,
@@ -151,7 +158,7 @@ const styles = StyleSheet.create({
     width: 40,                  
     borderStyle: 'dashed',     
     borderBottomWidth: 2,     
-    borderBottomColor: '#A08E75',
+    borderBottomColor: Colors.borderDark,
     height: 1, 
     margin: 10,             
   },
@@ -172,30 +179,36 @@ const styles = StyleSheet.create({
   levelButton: {
     width: '100%',
     height: '100%',
-    borderRadius: 45, 
+    // borderRadius: 45, 
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 2,
   },
   textLevelButton: {
+    textAlign: 'center',
     fontSize: 28,
     fontFamily: 'Fraunces-Bold',
-    color: '#FFFFFF'
+    color: Colors.text
   },
-  btnCompleted: {
-    backgroundColor: '#8B5A2B',
-    borderBottomWidth: 6,
-    borderBottomColor: '#6E4720',
-  },
-  btnActive: {
-    backgroundColor: '#E6A15C',
-    borderBottomWidth: 6,
-    borderBottomColor: '#C48443',
-  },
-  btnLocked: {
-    backgroundColor: '#D2C5B4',
-    borderBottomWidth: 6,
-    borderBottomColor: '#B5A898',
+  // btnCompleted: {
+  //   backgroundColor: '#8B5A2B',
+  //   borderBottomWidth: 6,
+  //   borderBottomColor: '#6E4720',
+  // },
+  // btnActive: {
+  //   backgroundColor: '#E6A15C',
+  //   borderBottomWidth: 6,
+  //   borderBottomColor: '#C48443',
+  // },
+  // btnLocked: {
+  //   backgroundColor: '#D2C5B4',
+  //   borderBottomWidth: 6,
+  //   borderBottomColor: '#B5A898',
+  // },
+  buttonStyle: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center'
   },
   activeRing: {
     position: 'absolute',
@@ -203,7 +216,7 @@ const styles = StyleSheet.create({
     height: 120,
     borderRadius: 60,
     borderWidth: 6,
-    borderColor: '#E6A15C',
+    borderColor: Colors.orange,
     borderStyle: 'dashed',
     zIndex: 1,
   },

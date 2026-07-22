@@ -1,5 +1,6 @@
 import { FlatList, Image, StyleSheet, TouchableOpacity } from "react-native";
 import { TilesType } from "@/components/material/dataMateri";
+import { Colors } from "@/config/colors";
 
 interface GridTilesGeneratorProps {
   data: TilesType[];
@@ -12,8 +13,10 @@ export default function GridTilesGenerator({
   chooseComponent,
   setChooseComponent,
 }: GridTilesGeneratorProps) {
+
   function RenderItemGrid({ item }: { item: TilesType }) {
     const sudahDipilih = chooseComponent.includes(item);
+
     function handleClickTiles() {
       if (sudahDipilih) {
         setChooseComponent((prev) => prev.filter((items) => items !== item));
@@ -21,6 +24,7 @@ export default function GridTilesGenerator({
         setChooseComponent((prev) => [...prev, item]);
       }
     }
+
     return (
       <TouchableOpacity
         onPress={() => handleClickTiles()}
@@ -54,9 +58,7 @@ const styles = StyleSheet.create({
     height: "100%",
   },
   FlatListCCStyle: {
-    borderWidth: 5,
-    borderColor: "#6f411d",
-    padding: 5,
+    padding: 10,
     gap: 5,
   },
   FlatListCWStyle: {
@@ -79,11 +81,11 @@ const styles = StyleSheet.create({
   },
   ItemContainerActive: {
     opacity: 1,
-    borderColor: "#6f411d",
+    borderColor: Colors.gold,
   },
   ItemContainerDisable: {
     opacity: 0.75,
-    borderColor: "#FFECC8",
+    borderColor: Colors.primary,
   },
   ItemContainerImage: {
     width: "100%",
