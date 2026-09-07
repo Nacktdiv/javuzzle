@@ -7,7 +7,6 @@ import * as NavigationBar from 'expo-navigation-bar';
 import { Colors } from '@/config/colors';
 
 export default function TabsLayout() {
-
   useEffect(() => {
     if (Platform.OS === 'android') {
       NavigationBar.setVisibilityAsync("hidden");
@@ -18,25 +17,29 @@ export default function TabsLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors.primaryDark,
-        tabBarInactiveTintColor: Colors.background,
+        tabBarActiveTintColor: Colors.primaryDark, 
+        tabBarInactiveTintColor: Colors.text,      
         tabBarStyle: {
           backgroundColor: Colors.secondary, 
-          borderTopWidth: 4,
-          borderTopColor: Colors.borderDark,
-          paddingTop: 4,
-          height: 80
+          borderTopWidth: 0, 
+          borderTopLeftRadius: 30, 
+          borderTopRightRadius: 30,
+          height: 75,
+          position: 'absolute', 
+          elevation: 0,        
+          shadowOpacity: 0,    
         },
         tabBarItemStyle: {
           flexDirection: 'column',
           justifyContent: 'center', 
           alignItems: 'center',     
-          height: '100%',   
+          paddingTop: 8,
+          paddingBottom: 8,
         },
         tabBarLabelStyle: {
-          fontFamily : 'Playfair-Display-Bold',
-          fontSize: 12,
-          marginTop: 6
+          fontFamily: 'Fraunces-Bold',
+          fontSize: 13,
+          marginTop: 4
         },
         headerShown: false,
       }}
@@ -76,7 +79,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="leaderboard"
         options={{
-          title: 'Leaderboard',
+          title: 'Peringkat',
           tabBarIcon: ({ color, focused }) => (
             <View style={{ width: 32, height: 32, justifyContent: 'center', alignItems: 'center' }}>
               <Ionicons 

@@ -1,63 +1,79 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native';
+import { CopilotStep, walkthroughable } from 'react-native-copilot';
 
 import { Colors } from '@/config/colors';
 import { MateriType } from './dataMateri';
 
+// Pembungkus Copilot untuk TouchableOpacity
+const CopilotTouchableOpacity = walkthroughable(TouchableOpacity);
+
 type Props = {
   item: MateriType;
   onPress: () => void;
+  // Props opsional untuk copilot step
+  copilotStepProps?: {
+    name: string;
+    order: number;
+    text: string;
+  };
 };
 
-export default function CardGenerator({ item, onPress }: Props) {
-  return (
-    <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.7}>
+export default function CardGenerator({ item, onPress, copilotStepProps }: Props) {
+  const CardContent = (
+    <CopilotTouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.7}>
       <Image
         source={item.aksara}
         style={styles.image}
+        resizeMode="contain"
       />
       <View style={styles.badge}>
         <Text style={styles.latinText}>{item.latin}</Text>
       </View>
-    </TouchableOpacity>
+    </CopilotTouchableOpacity>
   );
+
+  // Jika props copilotStepProps ada, bungkus dengan CopilotStep
+  if (copilotStepProps) {
+    return (
+      <CopilotStep
+        name={copilotStepProps.name}
+        order={copilotStepProps.order}
+        text={copilotStepProps.text}
+      >
+        {CardContent}
+      </CopilotStep>
+    );
+  }
+
+  return CardContent;
 }
 
 const styles = StyleSheet.create({
   card: {
-    flex:1,
-    maxHeight:100,
-    maxWidth: 100,
-    aspectRatio: '1/1',
-    backgroundColor: '#fff',
-    borderRadius: 15,
-    borderWidth: 3,
-    borderColor: Colors.gold,
+    flex: 1,
+    maxWidth: '30%',
+    aspectRatio: 0.9,
+    backgroundColor: Colors.text,
+    borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
-    gap:4,
-    padding:4,
-    // // Effect Shadow
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    padding: 8,
   },
   image: {
     flex: 1, 
-    aspectRatio: '1/1',
-    borderWidth: 4,
-    borderColor: Colors.borderDark
+    width: '70%',
+    height: '70%',
+    marginBottom: 6,
   },
   badge: {
-    backgroundColor: Colors.accent,
-    paddingHorizontal: 12,
-    paddingVertical: 2,
+    backgroundColor: Colors.orange,
+    paddingHorizontal: 14,
+    paddingVertical: 4,
     borderRadius: 20,
   },
   latinText: {
-    fontSize: 14,
+    fontSize: 12,
     fontFamily: 'Fraunces-Bold',
     color: Colors.text,
   },

@@ -1,6 +1,7 @@
 import React from 'react';
-import { StyleSheet, Text, View, Dimensions } from 'react-native';
+import { StyleSheet, Text, View, Dimensions, Image } from 'react-native';
 import { Colors } from '@/config/colors';
+import { Ionicons } from '@expo/vector-icons';
 import type { UserType } from '@/app/(tabs)/leaderboard';
 
 interface LeaderboardCardProps {
@@ -11,70 +12,69 @@ interface LeaderboardCardProps {
 const { width } = Dimensions.get('window');
 
 export default function LeaderboardCard({ user, rank }: LeaderboardCardProps) {
-  const isTopRank = rank <= 3;
-  const rankColors = ['#FFD700', '#C0C0C0', Colors.orange]; 
-  
   return (
-    <View style={styles.card}>
-      <View style={[
-        styles.rankBadge, 
-        isTopRank && { backgroundColor: rankColors[rank - 1], borderRadius: 20 }
-      ]}>
-        <Text style={[styles.rankText, isTopRank && styles.topRankText]}>
-          {rank}
-        </Text>
-      </View>
+    <View style={styles.cardContainer}>
+      <Text style={styles.rankText}>{rank}</Text>
 
-      <View style={styles.profileInfo}>
-        <Text style={styles.nameText} numberOfLines={1}>
-          {user.nama || 'Ksatria Javuzzle'}
-        </Text>
-        <Text style={styles.levelText}>Level {user.level}</Text>
-      </View>
+      <View style={styles.card}>
+        <View style={styles.avatarPlaceholder}>
+          <Ionicons name="person" size={20} color={Colors.secondary} />
+        </View>
 
-      <View style={styles.scoreContainer}>
-        <Text style={styles.scoreText}>{user.poin}</Text>
-        <Text style={styles.ptsLabel}>Pts</Text>
+        <View style={styles.profileInfo}>
+          <Text style={styles.nameText} numberOfLines={1}>
+            {user.nama || 'Ksatria Javuzzle'}
+          </Text>
+        </View>
+
+        {/* Score & Trend */}
+        <View style={styles.scoreContainer}>
+          <Text style={styles.scoreText}>{user.poin}</Text>
+          <Image
+            source={require('../../assets/images/coin.png')}
+            style={styles.scoreIcon}
+          />
+          <Ionicons name="trending-up" size={18} color={Colors.success} />
+        </View>
       </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  card: {
+  cardContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.gold,
-    borderWidth: 2,
-    borderColor: Colors.borderDark,
-    borderRadius: 12,
-    paddingVertical: width * 0.035, 
-    paddingHorizontal: 16,
-    marginVertical: 6,
-    elevation: 2,
-    shadowColor: Colors.borderDark,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-  },
-  rankBadge: {
-    width: 36,
-    height: 36,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
+    paddingHorizontal: 20,
+    marginBottom: 16,
   },
   rankText: {
-    fontSize: 16,
+    fontSize: 22,
     fontFamily: 'Fraunces-Bold',
-    color: Colors.text,
+    color: Colors.primaryDark,
+    width: 35, // Lebar tetap agar sejajar vertikal
+    textAlign: 'center',
+    marginRight: 10,
   },
-  topRankText: {
-    color: Colors.text,
-    fontSize: 18,
-    textShadowColor: 'rgba(0,0,0,0.3)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
+  card: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.background, // Krem sedikit lebih gelap dari warna text
+    borderRadius: 16,
+    paddingVertical: 12, 
+    paddingHorizontal: 16,
+  },
+  avatarPlaceholder: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: Colors.text,
+    borderWidth: 2,
+    borderColor: Colors.border,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 14,
   },
   profileInfo: {
     flex: 1,
@@ -82,29 +82,21 @@ const styles = StyleSheet.create({
   },
   nameText: {
     fontSize: 16,
-    fontFamily: 'Playfair-Display-Bold',
-    color: Colors.text, 
-    marginBottom: 2,
-  },
-  levelText: {
-    fontSize: 13,
-    fontFamily: 'Balthazar-Regular',
-    color: Colors.text, 
+    fontFamily: 'Fraunces-Bold',
+    color: Colors.primaryDark, 
   },
   scoreContainer: {
-    // alignItems: 'trailing',
-    justifyContent: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   scoreText: {
-    fontSize: 18,
+    fontSize: 16,
     fontFamily: 'Fraunces-Bold',
-    color: Colors.text,
-    textAlign: 'right',
+    color: Colors.primaryDark,
+    marginRight: 4,
   },
-  ptsLabel: {
-    fontSize: 11,
-    fontFamily: 'Balthazar-Regular',
-    color: Colors.text,
-    textAlign: 'right',
-  },
+  scoreIcon: {
+    width: 32,
+    height: 32,
+  }
 });

@@ -1,18 +1,19 @@
 import React from 'react';
-import { StyleSheet, Text, View, Dimensions } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
 interface ProfileStatItemProps {
+  icon: keyof typeof Ionicons.glyphMap;
   label: string;
   value: string | number;
 }
 
-const { width } = Dimensions.get('window');
-
-export default function ProfileStatItem({ label, value }: ProfileStatItemProps) {
+export default function ProfileStatItem({ icon, label, value }: ProfileStatItemProps) {
   return (
     <View style={styles.statBox}>
-      <Text style={styles.statValue}>{value}</Text>
+      <Ionicons name={icon} size={22} color="#FFFFFF" style={styles.icon} />
       <Text style={styles.statLabel}>{label}</Text>
+      <Text style={styles.statValue}>{value}</Text>
     </View>
   );
 }
@@ -22,17 +23,22 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 10,
   },
-  statValue: {
-    fontSize: width * 0.05,
-    fontFamily: 'Fraunces-Bold',
-    color: '#FFECC8',
+  icon: {
+    marginBottom: 6,
   },
   statLabel: {
-    fontSize: 13,
+    fontSize: 12,
     fontFamily: 'Balthazar-Regular',
-    color: '#FFECC8',
-    marginTop: 2,
+    color: '#FFFFFF',
+    opacity: 0.9,
+    marginBottom: 2,
+    textAlign: 'center',
+  },
+  statValue: {
+    fontSize: 14,
+    fontFamily: 'Fraunces-Bold',
+    color: '#FFFFFF',
+    textAlign: 'center',
   },
 });

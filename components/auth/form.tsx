@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-
 import { Colors } from '@/config/colors';
 
 interface FormProps {
@@ -25,10 +24,10 @@ export default function Form({ isLoginMode, onSubmit }: FormProps) {
         <>
           <Text style={styles.label}>Nama Lengkap</Text>
           <View style={styles.inputContainer}>
-            <Ionicons name="person-outline" size={20} color={Colors.primary} style={styles.inputIcon} />
+            <Ionicons name="mail-outline" size={22} color={Colors.primary} style={styles.inputIcon} />
             <TextInput 
               style={styles.input}
-              placeholder="Masukkan nama lengkap kamu"
+              placeholder="Masukkan Nama Lengkap Kamu"
               placeholderTextColor={Colors.secondary}
               value={fullName}
               onChangeText={setFullName}
@@ -40,10 +39,10 @@ export default function Form({ isLoginMode, onSubmit }: FormProps) {
 
       <Text style={styles.label}>Email</Text>
       <View style={styles.inputContainer}>
-        <Ionicons name="mail-outline" size={20} color={Colors.primary} style={styles.inputIcon} />
+        <Ionicons name="mail-outline" size={22} color={Colors.primary} style={styles.inputIcon} />
         <TextInput 
           style={styles.input}
-          placeholder="Masukkan email kamu"
+          placeholder="Masukkan Email Kamu"
           placeholderTextColor={Colors.secondary}
           value={email}
           onChangeText={setEmail}
@@ -54,10 +53,10 @@ export default function Form({ isLoginMode, onSubmit }: FormProps) {
 
       <Text style={styles.label}>Kata Sandi</Text>
       <View style={styles.inputContainer}>
-        <Ionicons name="lock-closed-outline" size={20} color={Colors.primary} style={styles.inputIcon} />
+        <Ionicons name="lock-closed-outline" size={22} color={Colors.primary} style={styles.inputIcon} />
         <TextInput 
           style={styles.input}
-          placeholder="Masukkan kata sandi"
+          placeholder="Masukkan Kata Sandi"
           placeholderTextColor={Colors.secondary}
           value={password}
           onChangeText={setPassword}
@@ -65,7 +64,7 @@ export default function Form({ isLoginMode, onSubmit }: FormProps) {
           autoCapitalize="none"
         />
         <TouchableOpacity onPress={() => setSecureText(!secureText)}>
-          <Ionicons name={secureText ? "eye-off-outline" : "eye-outline"} size={20} color={Colors.primary} />
+          <Ionicons name={secureText ? "eye-off-outline" : "eye-outline"} size={22} color={Colors.primary} />
         </TouchableOpacity>
       </View>
 
@@ -77,7 +76,7 @@ export default function Form({ isLoginMode, onSubmit }: FormProps) {
 
       <TouchableOpacity style={styles.loginButton} onPress={handlePressSubmit}>
         <Text style={styles.loginButtonText}>
-          {isLoginMode ? 'Masuk' : 'Daftar Akun Baru'}
+          {isLoginMode ? 'Masuk' : 'Daftar'}
         </Text>
       </TouchableOpacity>
     </View>
@@ -97,13 +96,16 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFF',
-    borderWidth: 2,
-    borderColor: Colors.primary,
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    height: 50,
-    marginBottom: 20,
+    backgroundColor: Colors.text,
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    height: 48,
+    marginBottom: 16,
+    shadowColor: Colors.primaryDark,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 1,
   },
   inputIcon: {
     marginRight: 10,
@@ -111,36 +113,36 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     color: Colors.textDark,
-    fontSize: 18,
+    fontSize: 15,
     fontFamily: 'Balthazar-Regular',
   },
   forgotBtn: {
     alignSelf: 'flex-end',
-    marginBottom: 25,
+    marginBottom: 20,
   },
   forgotText: {
     color: Colors.gold,
-    fontFamily: 'Fraunces-Bold',
+    fontFamily: 'Fraunces-Regular',
     fontSize: 14,
   },
   loginButton: {
     backgroundColor: Colors.secondary,
-    height: 52,
+    height: 50,
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
     borderBottomWidth: 4,
     borderBottomColor: Colors.primary, 
-    marginTop: 10,
-    shadowColor: '#000',
+    marginTop: 8,
+    shadowColor: Colors.primaryDark,
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.05,
     shadowRadius: 3,
-    elevation: 2,
+    elevation: 1,
   },
   loginButtonText: {
-    color: '#FFF',
-    fontSize: 18,
+    color: Colors.text,
+    fontSize: 20,
     fontFamily: 'Fraunces-Bold',
   },
 });

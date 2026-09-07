@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, Modal, TextInput, TouchableOpacity, Dimensions } from 'react-native';
+import { Colors } from '@/config/colors';
 
 interface ProfileEditModalProps {
   visible: boolean;
@@ -11,7 +12,6 @@ interface ProfileEditModalProps {
 }
 
 const { width } = Dimensions.get('window');
-
 const STUDY_PLAN_OPTIONS = [15, 30, 45, 60];
 
 export default function ProfileEditModal({ visible, onClose, title, type, currentValue, onSave }: ProfileEditModalProps) {
@@ -48,37 +48,37 @@ export default function ProfileEditModal({ visible, onClose, title, type, curren
               value={value}
               onChangeText={setValue}
               placeholder="Masukkan nama baru..."
-              placeholderTextColor="#a68a70"
+              placeholderTextColor={Colors.secondary}
             />
           )}
 
           {type === 'study_plan' && (
             <View style={styles.optionsContainer}>
-                {STUDY_PLAN_OPTIONS.map((menit) => {
+              {STUDY_PLAN_OPTIONS.map((menit) => {
                 const isSelected = String(menit) === value;
                 return (
-                    <TouchableOpacity
+                  <TouchableOpacity
                     key={menit}
                     style={[
-                        styles.optionButton,
-                        isSelected ? styles.optionButtonSelected : styles.optionButtonUnselected,
+                      styles.optionButton,
+                      isSelected ? styles.optionButtonSelected : styles.optionButtonUnselected,
                     ]}
                     onPress={() => setValue(String(menit))}
                     activeOpacity={0.8}
-                    >
+                  >
                     <Text
-                        style={[
+                      style={[
                         styles.optionText,
                         isSelected ? styles.optionTextSelected : styles.optionTextUnselected,
-                        ]}
+                      ]}
                     >
-                        {menit} Menit
+                      {menit} Menit
                     </Text>
-                    </TouchableOpacity>
+                  </TouchableOpacity>
                 );
-                })}
+              })}
             </View>
-            )}
+          )}
 
           {type === 'password' && (
             <View style={styles.passwordContainer}>
@@ -88,7 +88,7 @@ export default function ProfileEditModal({ visible, onClose, title, type, curren
                 onChangeText={setValue}
                 secureTextEntry
                 placeholder="Kata sandi baru..."
-                placeholderTextColor="#a68a70"
+                placeholderTextColor={Colors.secondary}
               />
               <TextInput
                 style={[styles.input, { marginTop: 10 }]}
@@ -96,7 +96,7 @@ export default function ProfileEditModal({ visible, onClose, title, type, curren
                 onChangeText={setNewPasswordConfirm}
                 secureTextEntry
                 placeholder="Konfirmasi kata sandi baru..."
-                placeholderTextColor="#a68a70"
+                placeholderTextColor={Colors.secondary}
               />
             </View>
           )}
@@ -124,59 +124,52 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   contentContainer: {
-    backgroundColor: '#fff4eb',
-    borderRadius: 15,
-    borderWidth: 4,
-    borderColor: '#6f411d',
-    padding: 20,
+    backgroundColor: Colors.text,
+    borderRadius: 20,
+    padding: 24,
     width: '85%',
-    elevation: 10,
   },
   title: {
     fontSize: 18,
-    fontFamily: 'Playfair-Display-Bold',
-    color: '#6f411d',
+    fontFamily: 'Fraunces-Bold',
+    color: Colors.primaryDark,
     textAlign: 'center',
-    marginBottom: 15,
+    marginBottom: 20,
   },
   passwordContainer: {
     width: '100%',
   },
   input: {
     width: '100%',
-    backgroundColor: '#fff',
-    borderWidth: 2,
-    borderColor: '#cb9163',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: width * 0.025,
-    fontSize: 16,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    fontSize: 15,
     fontFamily: 'Balthazar-Regular',
-    color: '#4a2306',
+    color: Colors.textDark,
   },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    gap: 15,
+    gap: 12,
     width: '100%',
-    marginTop: 20,
+    marginTop: 24,
   },
   button: {
-    borderRadius: 8,
+    borderRadius: 10,
     paddingHorizontal: 20,
     paddingVertical: 10,
     minWidth: 100,
     alignItems: 'center',
   },
   confirmButton: {
-    backgroundColor: '#cb9163',
-    borderWidth: 2,
-    borderColor: '#6f411d',
+    backgroundColor: Colors.secondary,
   },
   cancelButton: {
-    backgroundColor: '#d97d7d',
-    borderWidth: 2,
-    borderColor: '#7a2b2b',
+    backgroundColor: Colors.danger,
   },
   buttonText: {
     fontSize: 15,
@@ -192,26 +185,25 @@ const styles = StyleSheet.create({
   },
   optionButton: {
     width: '47%', 
-    paddingVertical: width * 0.03,
-    borderRadius: 8,
-    borderWidth: 2,
+    paddingVertical: 12,
+    borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
   },
   optionButtonUnselected: {
-    backgroundColor: '#fff',
-    borderColor: '#cb9163',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: Colors.border,
   },
   optionButtonSelected: {
-    backgroundColor: '#cb9163',
-    borderColor: '#6f411d',
+    backgroundColor: Colors.secondary,
   },
   optionText: {
-    fontSize: 16,
+    fontSize: 15,
     fontFamily: 'Fraunces-Bold',
   },
   optionTextUnselected: {
-    color: '#6f411d',
+    color: Colors.textDark,
   },
   optionTextSelected: {
     color: '#fff',

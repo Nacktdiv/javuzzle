@@ -1,4 +1,4 @@
-import { FlatList, Image, StyleSheet, TouchableOpacity } from "react-native";
+import { FlatList, Image, StyleSheet, TouchableOpacity, View } from "react-native";
 import { TilesType } from "@/components/material/dataMateri";
 import { Colors } from "@/config/colors";
 
@@ -6,12 +6,14 @@ interface GridTilesGeneratorProps {
   data: TilesType[];
   chooseComponent: TilesType[];
   setChooseComponent: React.Dispatch<React.SetStateAction<TilesType[]>>;
+  maxSlots?: number;
 }
 
 export default function GridTilesGenerator({
   data,
   chooseComponent,
   setChooseComponent,
+  maxSlots = 4,
 }: GridTilesGeneratorProps) {
 
   function RenderItemGrid({ item }: { item: TilesType }) {
@@ -21,18 +23,19 @@ export default function GridTilesGenerator({
       if (sudahDipilih) {
         setChooseComponent((prev) => prev.filter((items) => items !== item));
       } else {
-        setChooseComponent((prev) => [...prev, item]);
+        if (chooseComponent.length < maxSlots) {
+          setChooseComponent((prev) => [...prev, item]);
+        }
       }
     }
 
     return (
       <TouchableOpacity
-        onPress={() => handleClickTiles()}
+        activeOpacity={0.8}
+        onPress={handleClickTiles}
         style={[
           styles.ItemContainer,
-          sudahDipilih
-            ? styles.ItemContainerActive
-            : styles.ItemContainerDisable,
+          sudahDipilih ? styles.ItemContainerActive : styles.ItemContainerNormal,
         ]}
       >
         <Image style={styles.ItemContainerImage} source={item.image} />
@@ -41,55 +44,59 @@ export default function GridTilesGenerator({
   }
 
   return (
-    <FlatList
-      style={styles.FlatListStyle}
-      contentContainerStyle={styles.FlatListCCStyle}
-      columnWrapperStyle={styles.FlatListCWStyle}
-      numColumns={3}
-      data={data}
-      renderItem={RenderItemGrid}
-    />
+    <View style={styles.wrapper}>
+      <FlatList
+        scrollEnabled={false}
+        contentContainerStyle={styles.FlatListCCStyle}
+        columnWrapperStyle={styles.FlatListCWStyle}
+        numColumns={3}
+        data={data}
+        renderItem={RenderItemGrid}
+        keyExtractor={(_, index) => index.toString()}
+      />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  FlatListStyle: {
+  wrapper: {
     width: "100%",
-    height: "100%",
+    alignItems: "center",
+    justifyContent: "center",
   },
   FlatListCCStyle: {
-    padding: 10,
-    gap: 5,
+    gap: 12,
   },
   FlatListCWStyle: {
-    gap: 5,
+    gap: 12,
+    justifyContent: "center",
   },
   ItemContainer: {
-    flex: 1,
-    aspectRatio: "1/1",
-    overflow: "hidden",
-    borderRadius: 5,
-    borderWidth: 4,
-    elevation: 8,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 4.65,
+    width: 95,
+    height: 95,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 18,
+    padding: 10,
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: Colors.primaryDark,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  ItemContainerNormal: {
+    borderWidth: 1.5,
+    borderColor: '#EFE2CE',
   },
   ItemContainerActive: {
-    opacity: 1,
+    borderWidth: 2,
     borderColor: Colors.gold,
-  },
-  ItemContainerDisable: {
-    opacity: 0.75,
-    borderColor: Colors.primary,
+    backgroundColor: '#FFFDF9',
   },
   ItemContainerImage: {
     width: "100%",
     height: "100%",
-    objectFit: "cover",
+    resizeMode: "contain",
   },
 });

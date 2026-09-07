@@ -1,6 +1,5 @@
 import React from 'react';
-import { Text, StyleSheet } from 'react-native';
-
+import { Text, StyleSheet, View } from 'react-native';
 import { Colors } from '@/config/colors';
 
 interface FormatTextProps {
@@ -9,29 +8,24 @@ interface FormatTextProps {
 }
 
 function Silabisasi(kata: string) {
-  // Kita tidak menggunakan .toLowerCase() agar string asli tetap terjaga huruf kapitalnya
   let hasil = kata.normalize("NFC"); 
 
-  // 1. Aturan V-K-V: Pisah SEBELUM konsonan tunggal / digraf yang diapit dua vokal
-  // Ditambahkan ê ke daftar vokal, menggunakan (?=[aeiouê]) agar vokal kanan tidak terkunci
   hasil = hasil.replace(
     /([aeiouê])(ng|ny|th|dh|ch|[bcdfghjklmnpqrstvwxyz])(?=[aeiouê])/gi,
     "$1-$2"
   );
 
-  // 2. Aturan V-K-K-V: Pisah DI ANTARA dua konsonan yang diapit dua vokal
   hasil = hasil.replace(
     /([aeiouê])([bcdfghjklmnpqrstvwxyz])(?=(ng|ny|th|dh|ch|[bcdfghjklmnpqrstvwxyz])[aeiouê])/gi,
     "$1$2-"
   );
 
-  // 3. Aturan V-V: Dua vokal berurutan dipisah
   hasil = hasil.replace(/([aeiouê])(?=[aeiouê])/gi, "$1-");
 
   return hasil.split('-');
 }
 
-export default function TeksHighlight ({ kalimat, indexActive }: FormatTextProps) {
+export default function TeksHighlight({ kalimat, indexActive }: FormatTextProps) {
   const perSukuKata = kalimat.split(" ").reduce<string[]>((acc, kata, kataIdx, arrayKata) => {
     const silabisasiKata = Silabisasi(kata);
     
@@ -49,34 +43,46 @@ export default function TeksHighlight ({ kalimat, indexActive }: FormatTextProps
   }, []);
 
   return (
-    <Text>
+    <View style={styles.container}>
       {perSukuKata.map((potongan, index) => {
         const sukuKataActive = index === indexActive;
 
         return (
           <Text
             key={index}
-            style={sukuKataActive ? styles.highlightText : styles.normalText}
+            style={[
+              styles.textBase,
+              sukuKataActive ? styles.highlightText : styles.normalText,
+            ]}
           >
             {potongan}
           </Text>
         );
       })}
-    </Text>
+    </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
-  normalText: {
-    fontSize: 24,
+  container: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  textBase: {
+    fontSize: 36,
     fontFamily: 'Fraunces-Bold',
-    color: Colors.primary
+    fontWeight: 'bold',
+  },
+  normalText: {
+    color: Colors.textDark,
   },
   highlightText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: Colors.border,
-    backgroundColor: Colors.borderDark,
-    borderRadius: 4, 
+    color: Colors.orange,
+    backgroundColor: '#FFE3C8',
+    paddingHorizontal: 6,
+    borderRadius: 8,
+    overflow: 'hidden',
   },
 });
