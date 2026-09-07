@@ -12,7 +12,7 @@ interface ProfileEditModalProps {
 }
 
 const { width } = Dimensions.get('window');
-const STUDY_PLAN_OPTIONS = [15, 30, 45, 60];
+const STUDY_PLAN_OPTIONS = [3, 5, 10, 15];
 
 export default function ProfileEditModal({ visible, onClose, title, type, currentValue, onSave }: ProfileEditModalProps) {
   const [value, setValue] = useState<string>('');
