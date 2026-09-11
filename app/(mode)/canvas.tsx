@@ -1,9 +1,10 @@
-import React, { useEffect, useState, useContext, useCallback } from "react";
-import { ActivityIndicator, StyleSheet, View, Text, Platform } from "react-native";
+import React, { useEffect, useState, useContext, useCallback, useRef } from "react";
+import { ActivityIndicator, StyleSheet, View, Text, Platform, TouchableOpacity } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { Asset } from "expo-asset";
 import { File, Paths } from "expo-file-system";
 import { Ionicons } from "@expo/vector-icons";
+import { Audio } from "expo-av";
 import { CopilotStep, walkthroughable, useCopilot } from "react-native-copilot";
 
 import { Colors } from "@/config/colors";
@@ -32,10 +33,11 @@ export default function Canvas() {
   const { showAlert } = useCustomAlert();
   const { start, stop } = useCopilot();
 
-  const { question, level: levelParam, poin: poinParam } = useLocalSearchParams<{ 
+  const { question, level: levelParam, poin: poinParam, audio: audioParam } = useLocalSearchParams<{ 
     question: string; 
     level: string; 
     poin: string; 
+    audio?: any;
   }>();
 
   const level = levelParam ? Number(levelParam) : 1;
@@ -45,6 +47,74 @@ export default function Canvas() {
   const [boxedModel, setBoxedModel] = useState<any>(null);
   const [activeIndex, setActiveIndex] = useState<number>(0);
   const [dataLevel, setDataLevel] = useState<any[] | null>(null);
+  const [isPlayingAudio, setIsPlayingAudio] = useState<boolean>(false);
+
+  const soundRef = useRef<Audio.Sound | null>(null);
+
+  // Helper untuk menghentikan audio secara aman
+  const stopAndUnloadSound = async () => {
+    if (soundRef.current) {
+      try {
+        const status = await soundRef.current.getStatusAsync();
+        if (status.isLoaded) {
+          await soundRef.current.stopAsync();
+          await soundRef.current.unloadAsync();
+        }
+      } catch (e) {
+        // Safe ignore
+      } finally {
+        soundRef.current = null;
+        setIsPlayingAudio(false);
+      }
+    }
+  };
+
+  // Bersihkan audio saat komponen unmount
+  useEffect(() => {
+    return () => {
+      stopAndUnloadSound();
+    };
+  }, []);
+
+  // Fungsi untuk memutar audio soal
+  const handlePlayAudio = async () => {
+    if (!audioParam) return;
+
+    try {
+      await stopAndUnloadSound();
+      setIsPlayingAudio(true);
+
+      let audioSource: any;
+
+      if (typeof audioParam === "string" && !isNaN(Number(audioParam))) {
+        audioSource = Number(audioParam);
+      } else if (typeof audioParam === "string") {
+        audioSource = { uri: audioParam };
+      } else {
+        audioSource = audioParam;
+      }
+
+      const { sound: newSound } = await Audio.Sound.createAsync(
+        audioSource,
+        { shouldPlay: true }
+      );
+
+      soundRef.current = newSound;
+
+      newSound.setOnPlaybackStatusUpdate(async (status: any) => {
+        if (status.isLoaded && status.didJustFinish) {
+          setIsPlayingAudio(false);
+          try {
+            await newSound.unloadAsync();
+          } catch (e) {}
+          soundRef.current = null;
+        }
+      });
+    } catch (error) {
+      console.warn("Gagal memutar audio soal:", error);
+      setIsPlayingAudio(false);
+    }
+  };
 
   const handleStartWalkthrough = useCallback(() => {
     requestAnimationFrame(() => {
@@ -180,7 +250,22 @@ export default function Canvas() {
       >
         <CopilotView style={styles.cardQuestion}>
           <Text style={styles.labelQuestion}>Tuliskan ke Aksara Jawa :</Text>
-          <TeksHighlight kalimat={question} indexActive={activeIndex} />
+          <View style={styles.questionRow}>
+            <TeksHighlight kalimat={question} indexActive={activeIndex} />
+            {audioParam && (
+              <TouchableOpacity
+                style={styles.audioButton}
+                onPress={handlePlayAudio}
+                activeOpacity={0.7}
+              >
+                <Ionicons
+                  name={isPlayingAudio ? "volume-high" : "volume-medium-outline"}
+                  size={22}
+                  color="#FFFFFF"
+                />
+              </TouchableOpacity>
+            )}
+          </View>
         </CopilotView>
       </CopilotStep>
 
@@ -262,6 +347,25 @@ const styles = StyleSheet.create({
     opacity: 0.8,
     marginBottom: 8,
     fontFamily: 'Fraunces-Bold',
+  },
+  questionRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 10,
+  },
+  audioButton: {
+    backgroundColor: Colors.orange,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: Colors.orange,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 2,
   },
   guideContainer: {
     flexDirection: 'row',

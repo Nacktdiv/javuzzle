@@ -1,4 +1,5 @@
 import { MATERI_GABUNGAN } from "@/components/material/dataMateri";
+import util from 'util'
 // import { MATERI_GABUNGAN } from "@/other/dataMateri";
 
 export function Silabisasi(kata: string) {
@@ -49,16 +50,42 @@ export default function DataPuzzleGenerator(kalimat: string) {
             const clearItemLatin = item.latin.replace(/a/g, "").toLowerCase().normalize("NFC")
             return sukuKata.includes(clearItemLatin);
           }).reduce<any>((cont, item) => {
-            cont = [...cont, item.komponen[1]];
-            return cont;
+            if (/^(e)$/i.test(sukuKata)) {
+              cont = [...cont, item.komponen[0]];
+              return cont
+            } else if (/^(o)$/i.test(sukuKata)) {
+              cont = [...cont, item.komponen[0], item.komponen[2]];
+              return cont
+            } else {
+              cont = [...cont, item.komponen[1]];
+              return cont;
+            }
           }, []);
-          const obj = {
-            [sukuKata]: SorterComponent([
-              ...MATERI_GABUNGAN[0].komponen,
-              ...komponenTambahan,
-            ]),
-          };
-          acc.push(obj);
+          let obj = {}
+          if (/^(e)$/i.test(sukuKata)) {
+              obj = {
+                [sukuKata]: SorterComponent([
+                  ...komponenTambahan,
+                  ...MATERI_GABUNGAN[0].komponen,
+                ]),
+              };
+            } else if (/^(o)$/i.test(sukuKata)) {
+              obj = {
+                [sukuKata]: SorterComponent([
+                  komponenTambahan[0],
+                  ...MATERI_GABUNGAN[0].komponen,
+                  komponenTambahan[1],
+                ]),
+              };
+            } else {
+              obj = {
+                [sukuKata]: SorterComponent([
+                  ...MATERI_GABUNGAN[0].komponen,
+                  ...komponenTambahan,
+                ]),
+              };
+            }
+          acc.push(obj)
         } else {
           let komponen = MATERI_GABUNGAN.filter((item) => {
             const latinItem = item.latin.toLowerCase().normalize("NFC");
@@ -71,12 +98,21 @@ export default function DataPuzzleGenerator(kalimat: string) {
             const clearItemLatin = latinItem.replace(/a/g, "");
             return sukuKata.includes(clearItemLatin);
           }).reduce<any>((cont, item) => {
+            // console.log(util.inspect((item), { showHidden: false, depth: null, colors: true }));
+            // console.log('\n')
             const latinItem = item.latin.toLowerCase().normalize("NFC");
-            if (/^(i|u|e|ê|o)$/.test(latinItem)) {
+            if (/e/i.test(latinItem)) {
+              cont = [item.komponen[0], ...cont]
+            } else if (/o/i.test(latinItem)) {
+              cont = [item.komponen[0], ...cont, item.komponen[2]];
+            } else if (/(i|u|ê)/i.test(latinItem)) {
               cont = [...cont, item.komponen[1]];
+              return cont;
             } else {
               cont = [...cont, ...item.komponen];
             }
+            // console.log(util.inspect((cont), { showHidden: false, depth: null, colors: true }));
+            //  console.log('\n')
             return cont;
           }, []);
           const obj = {

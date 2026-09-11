@@ -107,7 +107,8 @@ export default function LevelGenerator({ data }: { data: any[] }) {
                           params: {
                             question: level.question,
                             level: level.level,
-                            poin: level.poin
+                            poin: level.poin,
+                            audio: level.audio
                           }
                         })}
                       >

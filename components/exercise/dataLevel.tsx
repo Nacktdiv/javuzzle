@@ -1,5 +1,62 @@
+// Map static audio assets
+const getSoalAudio = (levelId: number) => {
+  const audioMap: { [key: number]: any } = {
+    1: require('@/assets/audio/audio_soal/level1.mp3'),
+    2: require('@/assets/audio/audio_soal/level2.mp3'),
+    3: require('@/assets/audio/audio_soal/level3.mp3'),
+    4: require('@/assets/audio/audio_soal/level4.mp3'),
+    5: require('@/assets/audio/audio_soal/level5.mp3'),
+    6: require('@/assets/audio/audio_soal/level6.mp3'),
+    7: require('@/assets/audio/audio_soal/level7.mp3'),
+    8: require('@/assets/audio/audio_soal/level8.mp3'),
+    9: require('@/assets/audio/audio_soal/level9.mp3'),
+    10: require('@/assets/audio/audio_soal/level10.mp3'),
+    11: require('@/assets/audio/audio_soal/level11.mp3'),
+    12: require('@/assets/audio/audio_soal/level12.mp3'),
+    13: require('@/assets/audio/audio_soal/level13.mp3'),
+    14: require('@/assets/audio/audio_soal/level14.mp3'),
+    15: require('@/assets/audio/audio_soal/level15.mp3'),
+    16: require('@/assets/audio/audio_soal/level16.mp3'),
+    17: require('@/assets/audio/audio_soal/level17.mp3'),
+    18: require('@/assets/audio/audio_soal/level18.mp3'),
+    19: require('@/assets/audio/audio_soal/level19.mp3'),
+    20: require('@/assets/audio/audio_soal/level20.mp3'),
+    21: require('@/assets/audio/audio_soal/level21.mp3'),
+    22: require('@/assets/audio/audio_soal/level22.mp3'),
+    23: require('@/assets/audio/audio_soal/level23.mp3'),
+    24: require('@/assets/audio/audio_soal/level24.mp3'),
+    25: require('@/assets/audio/audio_soal/level25.mp3'),
+    26: require('@/assets/audio/audio_soal/level26.mp3'),
+    27: require('@/assets/audio/audio_soal/level27.mp3'),
+    28: require('@/assets/audio/audio_soal/level28.mp3'),
+    29: require('@/assets/audio/audio_soal/level29.mp3'),
+    30: require('@/assets/audio/audio_soal/level30.mp3'),
+    31: require('@/assets/audio/audio_soal/level31.mp3'),
+    32: require('@/assets/audio/audio_soal/level32.mp3'),
+    33: require('@/assets/audio/audio_soal/level33.mp3'),
+    34: require('@/assets/audio/audio_soal/level34.mp3'),
+    35: require('@/assets/audio/audio_soal/level35.mp3'),
+    36: require('@/assets/audio/audio_soal/level36.mp3'),
+    37: require('@/assets/audio/audio_soal/level37.mp3'),
+    38: require('@/assets/audio/audio_soal/level38.mp3'),
+    39: require('@/assets/audio/audio_soal/level39.mp3'),
+    40: require('@/assets/audio/audio_soal/level40.mp3'),
+    41: require('@/assets/audio/audio_soal/level41.mp3'),
+    42: require('@/assets/audio/audio_soal/level42.mp3'),
+    43: require('@/assets/audio/audio_soal/level43.mp3'),
+    44: require('@/assets/audio/audio_soal/level44.mp3'),
+    45: require('@/assets/audio/audio_soal/level45.mp3'),
+    46: require('@/assets/audio/audio_soal/level46.mp3'),
+    47: require('@/assets/audio/audio_soal/level47.mp3'),
+    48: require('@/assets/audio/audio_soal/level48.mp3'),
+    49: require('@/assets/audio/audio_soal/level49.mp3'),
+    50: require('@/assets/audio/audio_soal/level50.mp3'),
+  };
+  return audioMap[levelId];
+};
 
-export const dataLevel = [
+// Raw Data
+const rawDataLevel = [
   {
     bagianId: 1,
     namaBagian: "Dasar-Dasar Aksara Nglegena",
@@ -141,3 +198,15 @@ export const dataLevel = [
     ]
   }
 ];
+
+// Injeksi otomatis properti 'audio' ke setiap level
+export const dataLevel = rawDataLevel.map((bagian) => ({
+  ...bagian,
+  units: bagian.units.map((unit) => ({
+    ...unit,
+    levels: unit.levels.map((lvl) => ({
+      ...lvl,
+      audio: getSoalAudio(lvl.id),
+    })),
+  })),
+}));

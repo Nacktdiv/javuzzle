@@ -28,8 +28,15 @@ function MateriContent() {
     setSelectedMateri(null);
   };
 
+  // LOGIKA DIBERSIHKAN: Menangkap error async jika activity belum siap saat tombol help ditekan
   const handleStartWalkthrough = useCallback(() => {
-    start().catch(() => {});
+    try {
+      start().catch((err) => {
+        console.warn("Copilot start deferred:", err);
+      });
+    } catch (e) {
+      // Safe fallback
+    }
   }, [start]);
 
   return (
@@ -63,7 +70,7 @@ function MateriContent() {
           name="materiSectionStep"
         >
           <CopilotView style={styles.sectionHeader}>
-            <Text style={styles.partTitle}>Aksara Nglegena</Text>
+            <Text style={styles.partTitle}>Aksara Legena</Text>
             <Text style={styles.partSubtitle}>
               Huruf dasar Jawa yang masih memiliki bunyi vokal asli 'a' (belum mendapat imbuhan)
             </Text>
@@ -97,7 +104,7 @@ function MateriContent() {
           nestedScrollEnabled={true}
         />
 
-        {/* Section Sandhangan (Polosan tanpa CopilotStep) */}
+        {/* Section Sandhangan */}
         <View style={[styles.sectionHeader, { marginTop: 15 }]}>
           <Text style={styles.partTitle}>Sandhangan</Text>
           <Text style={styles.partSubtitle}>

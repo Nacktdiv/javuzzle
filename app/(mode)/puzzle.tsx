@@ -1,7 +1,9 @@
-import React, { useState, useEffect, useContext, useCallback } from "react";
+import React, { useState, useEffect, useContext, useCallback, useRef } from "react";
 import { StyleSheet, View, Text, Image, TouchableOpacity } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { CopilotStep, walkthroughable, useCopilot } from "react-native-copilot";
+import { Ionicons } from "@expo/vector-icons";
+import { Audio } from "expo-av";
 
 import { Colors } from "@/config/colors";
 import { globalDataContext } from "@/app/_layout";
@@ -17,6 +19,8 @@ import UpdateSkorAndLevel from "@/components/exercise/updateSkorAndLevel";
 const CopilotView = walkthroughable(View);
 const CopilotTouchableOpacity = walkthroughable(TouchableOpacity);
 
+import util from 'util';
+
 export default function PuzzleMode() {
   const router = useRouter();
   const { user, setUser } = useContext(globalDataContext);
@@ -24,10 +28,11 @@ export default function PuzzleMode() {
   const { showAlert } = useCustomAlert();
   const { start, stop } = useCopilot();
 
-  const { question, level: levelParam, poin: poinParam } = useLocalSearchParams<{
+  const { question, level: levelParam, poin: poinParam, audio: audioParam } = useLocalSearchParams<{
     question: string;
     level: string;
     poin: string;
+    audio?: any;
   }>();
 
   const level = levelParam ? Number(levelParam) : 1;
@@ -38,6 +43,79 @@ export default function PuzzleMode() {
   const [gridItems, setGridItems] = useState<TilesType[]>([]);
   const [chooseComponent, setChooseComponent] = useState<TilesType[]>([]);
   const [requiredSlotCount, setRequiredSlotCount] = useState<number>(4);
+  const [isPlayingAudio, setIsPlayingAudio] = useState<boolean>(false);
+
+  const soundRef = useRef<Audio.Sound | null>(null);
+
+  // Helper untuk menghentikan audio secara aman
+  const stopAndUnloadSound = async () => {
+    if (soundRef.current) {
+      try {
+        const status = await soundRef.current.getStatusAsync();
+        if (status.isLoaded) {
+          await soundRef.current.stopAsync();
+          await soundRef.current.unloadAsync();
+        }
+      } catch (e) {
+        // Safe ignore
+      } finally {
+        soundRef.current = null;
+        setIsPlayingAudio(false);
+      }
+    }
+  };
+
+  // Bersihkan audio saat komponen unmount
+  useEffect(() => {
+    return () => {
+      stopAndUnloadSound();
+    };
+  }, []);
+
+  // Fungsi untuk memutar audio soal
+  const handlePlayAudio = async () => {
+    if (!audioParam) return;
+
+    try {
+      await stopAndUnloadSound();
+      setIsPlayingAudio(true);
+
+      let audioSource: any;
+
+      // 1. Jika param berupa string angka dari URL (misal: "170"), konversi ke Number
+      if (typeof audioParam === "string" && !isNaN(Number(audioParam))) {
+        audioSource = Number(audioParam);
+      } 
+      // 2. Jika param berupa objek uri/source
+      else if (typeof audioParam === "string") {
+        audioSource = { uri: audioParam };
+      } 
+      // 3. Jika param sudah berupa number module ID
+      else {
+        audioSource = audioParam;
+      }
+
+      const { sound: newSound } = await Audio.Sound.createAsync(
+        audioSource,
+        { shouldPlay: true }
+      );
+
+      soundRef.current = newSound;
+
+      newSound.setOnPlaybackStatusUpdate(async (status: any) => {
+        if (status.isLoaded && status.didJustFinish) {
+          setIsPlayingAudio(false);
+          try {
+            await newSound.unloadAsync();
+          } catch (e) {}
+          soundRef.current = null;
+        }
+      });
+    } catch (error) {
+      console.warn("Gagal memutar audio soal:", error);
+      setIsPlayingAudio(false);
+    }
+  };
 
   const handleStartWalkthrough = useCallback(() => {
     requestAnimationFrame(() => {
@@ -62,6 +140,8 @@ export default function PuzzleMode() {
 
   useEffect(() => {
     const generateData = DataPuzzleGenerator(question);
+    // const testData = DataPuzzleGenerator("masesêsaê")
+    // console.log(util.inspect((testData), { showHidden: false, depth: null, colors: true }));
     setDataLevel(generateData);
     setActivePart(0);
   }, [question]);
@@ -163,6 +243,9 @@ export default function PuzzleMode() {
     }
   };
 
+  // Hitung ukuran slot dinamis berdasarkan jumlah slot
+  const slotSize = requiredSlotCount > 4 ? 52 : 68;
+
   return (
     <View style={styles.container}>
       {/* STEP 1: Kartu Pertanyaan */}
@@ -173,7 +256,22 @@ export default function PuzzleMode() {
       >
         <CopilotView style={styles.cardQuestion}>
           <Text style={styles.labelQuestion}>Terjemahkan ke Aksara Jawa :</Text>
-          <TeksHighlight kalimat={question} indexActive={activePart} />
+          <View style={styles.questionRow}>
+            <TeksHighlight kalimat={question} indexActive={activePart} />
+            {audioParam && (
+              <TouchableOpacity
+                style={styles.audioButton}
+                onPress={handlePlayAudio}
+                activeOpacity={0.7}
+              >
+                <Ionicons
+                  name={isPlayingAudio ? "volume-high" : "volume-medium-outline"}
+                  size={22}
+                  color="#FFFFFF"
+                />
+              </TouchableOpacity>
+            )}
+          </View>
         </CopilotView>
       </CopilotStep>
 
@@ -192,6 +290,7 @@ export default function PuzzleMode() {
                   key={index}
                   style={[
                     styles.slotBox,
+                    { width: slotSize, height: slotSize },
                     selectedItem ? styles.slotBoxFilled : styles.slotBoxEmpty,
                   ]}
                   onPress={() => {
@@ -204,7 +303,7 @@ export default function PuzzleMode() {
                   {selectedItem ? (
                     <Image style={styles.slotImage} source={selectedItem.image} />
                   ) : (
-                    <Text style={styles.slotQuestionMark}>?</Text>
+                    <Text style={[styles.slotQuestionMark, requiredSlotCount > 5 && { fontSize: 20 }]}>?</Text>
                   )}
                 </TouchableOpacity>
               );
@@ -288,6 +387,25 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     fontFamily: "Fraunces-Bold",
   },
+  questionRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 10,
+  },
+  audioButton: {
+    backgroundColor: Colors.orange,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: Colors.orange,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 2,
+  },
   answerSlotsWrapper: {
     alignItems: "center",
     justifyContent: "center",
@@ -302,8 +420,6 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   slotBox: {
-    width: 68,
-    height: 68,
     borderRadius: 16,
     justifyContent: "center",
     alignItems: "center",

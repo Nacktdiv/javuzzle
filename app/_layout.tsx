@@ -70,12 +70,12 @@ export default function RootLayout() {
   const router = useRouter();
   const segments = useSegments();
 
-  // Hide Navigation Bar di Android
-  useEffect(() => {
-    if (Platform.OS === "android") {
-      NavigationBar.setVisibilityAsync("hidden").catch(() => {});
-    }
-  }, []);
+  // // Hide Navigation Bar di Android
+  // useEffect(() => {
+  //   if (Platform.OS === "android") {
+  //     NavigationBar.setVisibilityAsync("hidden").catch(() => {});
+  //   }
+  // }, []);
 
   // Load Custom Fonts
   const [loadedFonts, errorLoadedFonts] = useFonts({

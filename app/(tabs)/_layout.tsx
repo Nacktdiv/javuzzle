@@ -7,12 +7,12 @@ import * as NavigationBar from 'expo-navigation-bar';
 import { Colors } from '@/config/colors';
 
 export default function TabsLayout() {
-  useEffect(() => {
-    if (Platform.OS === 'android') {
-      NavigationBar.setVisibilityAsync("hidden");
-      NavigationBar.setBehaviorAsync("overlay-swipe");
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (Platform.OS === 'android') {
+  //     NavigationBar.setVisibilityAsync("hidden");
+  //     NavigationBar.setBehaviorAsync("overlay-swipe");
+  //   }
+  // }, []);
 
   return (
     <Tabs

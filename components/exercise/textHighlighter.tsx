@@ -1,5 +1,5 @@
-import React from 'react';
-import { Text, StyleSheet, View } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { Text, StyleSheet, View, LayoutChangeEvent } from 'react-native';
 import { Colors } from '@/config/colors';
 
 interface FormatTextProps {
@@ -26,6 +26,25 @@ function Silabisasi(kata: string) {
 }
 
 export default function TeksHighlight({ kalimat, indexActive }: FormatTextProps) {
+  const [fontSize, setFontSize] = useState(32);
+
+  // Reset ukuran font ke 32 setiap kali kalimat berubah
+  useEffect(() => {
+    setFontSize(32);
+  }, [kalimat]);
+
+  const handleLayout = (event: LayoutChangeEvent) => {
+    const { height } = event.nativeEvent.layout;
+    
+    // Perkiraan batas tinggi 1 baris berdasarkan fontSize saat ini
+    const batasTinggiSatuBaris = fontSize * 1.35;
+
+    // Jika tinggi container melebihi 1 baris, kecilkan fontSize sampai batas minimal (misal 16)
+    if (height > batasTinggiSatuBaris && fontSize > 14) {
+      setFontSize((prev) => Math.max(prev - 4, 14));
+    }
+  };
+
   const perSukuKata = kalimat.split(" ").reduce<string[]>((acc, kata, kataIdx, arrayKata) => {
     const silabisasiKata = Silabisasi(kata);
     
@@ -43,7 +62,7 @@ export default function TeksHighlight({ kalimat, indexActive }: FormatTextProps)
   }, []);
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} onLayout={handleLayout}>
       {perSukuKata.map((potongan, index) => {
         const sukuKataActive = index === indexActive;
 
@@ -52,6 +71,7 @@ export default function TeksHighlight({ kalimat, indexActive }: FormatTextProps)
             key={index}
             style={[
               styles.textBase,
+              { fontSize }, // Menimpa ukuran fontSize secara dinamis tanpa merubah style lain
               sukuKataActive ? styles.highlightText : styles.normalText,
             ]}
           >
@@ -71,7 +91,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   textBase: {
-    fontSize: 36,
+    fontSize: 32,
     fontFamily: 'Fraunces-Bold',
     fontWeight: 'bold',
   },
