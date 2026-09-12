@@ -1,7 +1,7 @@
 import * as NavigationBar from "expo-navigation-bar";
 import { Stack, useRouter, useSegments } from "expo-router";
-import React, { createContext, useEffect, useState } from "react";
-import { Platform } from "react-native";
+import React, { createContext, useEffect, useState, useRef } from "react";
+import { Platform, AppState, AppStateStatus } from "react-native";
 import { CopilotProvider } from "react-native-copilot";
 
 // === Import Offline Engine & Utilities ===
@@ -9,7 +9,7 @@ import NetInfo from "@react-native-community/netinfo";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { initLocalDatabase } from "@/config/localDb";
 import { useSyncManager } from "@/config/useSyncManager";
-import { saveUserToLocal, getUserFromLocal } from "@/components/main/userService";
+import { saveUserToLocal, getUserFromLocal, addStudyTimeLocal } from "@/components/main/userService";
 
 // === Import Google Fonts ===
 import { Balthazar_400Regular } from "@expo-google-fonts/balthazar";
@@ -36,6 +36,8 @@ export type userType = {
   poin: number;
   study_plan: number;
   created_at: string;
+  today_minutes: number;
+  streak: number;
 };
 
 interface GlobalContextType {
@@ -66,6 +68,51 @@ export default function RootLayout() {
 
   // Auto-sync queue dari SQLite ke Supabase saat terhubung ke internet
   useSyncManager();
+
+  // -------------------------------------------------------------
+  // ⏱️ LOGIKA TIMER BELAJAR UNTUK TODAY MINUTES & STREAK
+  // -------------------------------------------------------------
+  const appState = useRef(AppState.currentState);
+
+  useEffect(() => {
+    if (!isDbReady || !user?.id) return;
+
+    let secondsAcc = 0;
+
+    let intervalDetik = 60
+
+    const interval = setInterval(() => {
+      secondsAcc += 1;
+
+      if (secondsAcc >= intervalDetik) {
+        secondsAcc = 0;
+        const updatedUser = addStudyTimeLocal(user.id, 1);
+        if (updatedUser) {
+          setUser(updatedUser); 
+        }
+      }
+    }, 1000);
+
+    const subscription = AppState.addEventListener("change", (nextAppState: AppStateStatus) => {
+      if (
+        appState.current.match(/active/) &&
+        nextAppState.match(/inactive|background/)
+      ) {
+        if (secondsAcc >= 30) {
+          const updatedUser = addStudyTimeLocal(user.id, 1);
+          if (updatedUser) setUser(updatedUser);
+        }
+        secondsAcc = 0;
+      }
+      appState.current = nextAppState;
+    });
+
+    return () => {
+      clearInterval(interval);
+      subscription.remove();
+    };
+  }, [isDbReady, user?.id]);
+  // -------------------------------------------------------------
 
   const router = useRouter();
   const segments = useSegments();

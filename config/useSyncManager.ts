@@ -43,7 +43,7 @@ export const useSyncManager = () => {
 
         let isSuccess = false;
 
-        if (item.action === "UPDATE_USER_PROFILE" || item.action === "UPDATE_SCORE_LEVEL") {
+        if (item.action === "UPDATE_USER_PROFILE" || item.action === "UPDATE_SCORE_LEVEL" || item.action === "UPDATE_STUDY_TIME") {
           const localUser = getUserFromLocal(userId);
 
           // Gabungkan data agar lengkap

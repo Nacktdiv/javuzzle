@@ -40,12 +40,12 @@ export const komponenAksara = [
   { nama: "n", image: require("@/assets/component/n.png") },
   { nama: "nyantik", image: require("@/assets/component/nyantik.png") },
   { nama: "payung_m", image: require("@/assets/component/payung_m.png") },
-  { nama: "pepet", image: require("@/assets/component/pepet.png") },
-  { nama: "suku", image: require("@/assets/component/suku.png") },
-  { nama: "taling_tarung", image: require("@/assets/component/taling_tarung.png") },
-  { nama: "taling", image: require("@/assets/component/taling.png") },
+  { nama: "pepet_c", image: require("@/assets/component/pepet_c.png") },
+  { nama: "suku_c", image: require("@/assets/component/suku_c.png") },
+  { nama: "tarung_c", image: require("@/assets/component/tarung_c.png") },
+  { nama: "taling_c", image: require("@/assets/component/taling_c.png") },
   { nama: "up_n", image: require("@/assets/component/up_n.png") },
-  { nama: "wulu", image: require("@/assets/component/wulu.png") }
+  { nama: "wulu_c", image: require("@/assets/component/wulu_c.png") }
 ];
 
 export const MATERI_AKSARA: MateriType[] = [
@@ -368,7 +368,7 @@ export const MATERI_SANDHANGAN: MateriType[] = [
     ],
     komponen: [
       { urutan: 1, nama: 'aksara_ga', image: require('@/assets/aksara_jawa/ga.png') },
-      { urutan: 2, nama: 'wulu', image: require('@/assets/component/wulu.png') }
+      { urutan: 2, nama: 'wulu_c', image: require('@/assets/component/wulu_c.png') }
     ] 
   },
   {
@@ -383,7 +383,7 @@ export const MATERI_SANDHANGAN: MateriType[] = [
     ],
     komponen: [
       { urutan: 1, nama: 'aksara_ga', image: require('@/assets/aksara_jawa/ga.png') },
-      { urutan: 2, nama: 'pepet', image: require('@/assets/component/pepet.png') }
+      { urutan: 2, nama: 'pepet_c', image: require('@/assets/component/pepet_c.png') }
     ] 
   },
   {
@@ -397,7 +397,7 @@ export const MATERI_SANDHANGAN: MateriType[] = [
       { kata: 'ꦭꦺꦭꦺ (Lele)', arti: 'Ikan Lele', audio: require('@/assets/audio/output_audio/sandhangan/taling/contoh2_lele.mp3') }
     ],
     komponen: [
-      { urutan: 1, nama: 'taling', image: require('@/assets/component/taling.png') },
+      { urutan: 1, nama: 'taling_c', image: require('@/assets/component/taling_c.png') },
       { urutan: 2, nama: 'aksara_na', image: require('@/assets/aksara_jawa/na.png') },
     ] 
   },
@@ -412,9 +412,9 @@ export const MATERI_SANDHANGAN: MateriType[] = [
       { kata: 'ꦠꦺꦴꦏꦺꦴ (Toko)', arti: 'Toko', audio: require('@/assets/audio/output_audio/sandhangan/taling_tarung/contoh2_toko.mp3') }
     ],
     komponen: [
-      { urutan: 1, nama: 'taling_tarung', image: require('@/assets/component/taling_tarung.png') },
+      { urutan: 1, nama: 'taling_c', image: require('@/assets/component/taling_c.png') },
       { urutan: 2, nama: 'aksara_na', image: require('@/assets/aksara_jawa/na.png') },
-      { urutan: 3, nama: 'taling_tarung', image: require('@/assets/component/taling_tarung.png') }
+      { urutan: 3, nama: 'tarung_c', image: require('@/assets/component/tarung_c.png') }
     ] 
   },
   {
@@ -429,7 +429,7 @@ export const MATERI_SANDHANGAN: MateriType[] = [
     ],
     komponen: [
       { urutan: 1, nama: 'aksara_ga', image: require('@/assets/aksara_jawa/ga.png') },
-      { urutan: 2, nama: 'suku', image: require('@/assets/component/suku.png') }
+      { urutan: 2, nama: 'suku_c', image: require('@/assets/component/suku_c.png') }
     ] 
   }
 ];

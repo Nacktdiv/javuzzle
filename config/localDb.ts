@@ -15,18 +15,18 @@ export const getDb = (): SQLite.SQLiteDatabase => {
   return dbInstance;
 };
 
-// export const clearLocalDatabase = () => {
-//   try {
-//     const db = getDb();
-//     db.execSync(`
-//       DROP TABLE IF EXISTS users;
-//       DROP TABLE IF EXISTS sync_queue;
-//     `);
-//     console.log("🧹 [LOCAL DB DEV] Seluruh tabel berhasil dihapus (Reset Clean)!");
-//   } catch (error) {
-//     console.error("❌ [LOCAL DB DEV] Gagal menghapus tabel:", error);
-//   }
-// };
+export const clearLocalDatabase = () => {
+  try {
+    const db = getDb();
+    db.execSync(`
+      DROP TABLE IF EXISTS users;
+      DROP TABLE IF EXISTS sync_queue;
+    `);
+    console.log("🧹 [LOCAL DB DEV] Seluruh tabel berhasil dihapus (Reset Clean)!");
+  } catch (error) {
+    console.error("❌ [LOCAL DB DEV] Gagal menghapus tabel:", error);
+  }
+};
 
 export const initLocalDatabase = () => {
   try {
@@ -49,6 +49,8 @@ export const initLocalDatabase = () => {
         level INTEGER DEFAULT 1,
         poin INTEGER DEFAULT 0,
         study_plan INTEGER,
+        today_minutes INTEGER,
+        streak INTEGER,
         created_at TEXT,
         is_synced INTEGER DEFAULT 1
       );
