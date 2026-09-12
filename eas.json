@@ -1,13 +1,13 @@
 {
   "cli": {
     "version": ">= 7.0.0",
-    "appVersionSource": "remote"
+    "appVersionSource": "remote",
+    "promptToAutoPackBeforeBuild": true
   },
   "build": {
     "development": {
       "developmentClient": true,
       "distribution": "internal",
-      "npmClient": "pnpm",
       "android": {
         "buildType": "apk"
       },
@@ -17,7 +17,6 @@
     },
     "preview": {
       "distribution": "internal",
-      "npmClient": "pnpm",
       "android": {
         "buildType": "apk"
       },
@@ -30,7 +29,6 @@
     "production": {
       "distribution": "store",
       "autoIncrement": true,
-      "npmClient": "pnpm",
       "android": {
         "buildType": "app-bundle",
         "gradleCommand": ":app:bundleRelease"
