@@ -1,5 +1,5 @@
 import { MATERI_GABUNGAN } from "@/components/material/dataMateri";
-import util from 'util'
+// import util from 'util'
 // import { MATERI_GABUNGAN } from "@/other/dataMateri";
 
 export function Silabisasi(kata: string) {

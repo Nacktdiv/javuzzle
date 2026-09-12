@@ -6,23 +6,13 @@ import { Colors } from '@/config/colors';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { CopilotStep, walkthroughable, useCopilot, CopilotProvider } from 'react-native-copilot';
-
+import { userType } from '@/app/_layout';
 import LeaderboardCard from '@/components/leaderboard/leaderboardCard';
-
-export type UserType = {
-  id: string;
-  email: string;
-  nama: string;
-  level: number;
-  poin: number;
-  study_plan: number;
-  created_at: string;
-};
 
 const CopilotView = walkthroughable(View);
 
 // 1. Sub-komponen Podium Statis
-const PodiumItem = ({ user, rank }: { user?: UserType; rank: number }) => {
+const PodiumItem = ({ user, rank }: { user?: userType; rank: number }) => {
   if (!user) return <View style={styles.podiumPlaceholder} />;
 
   const isFirst = rank === 1;
@@ -52,7 +42,7 @@ const PodiumItem = ({ user, rank }: { user?: UserType; rank: number }) => {
 
 // 2. Component Header Terpisah (Di luar FlatList)
 interface LeaderboardHeaderProps {
-  top3: UserType[];
+  top3: userType[];
   onBack: () => void;
   onStartWalkthrough: () => void;
 }
@@ -98,7 +88,7 @@ function LeaderboardContent() {
   const router = useRouter();
   const { start } = useCopilot();
 
-  const [leaderboardData, setLeaderboardData] = useState<UserType[]>([]);
+  const [leaderboardData, setLeaderboardData] = useState<userType[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [isConnected, setIsConnected] = useState<boolean | null>(true);
 
@@ -118,7 +108,7 @@ function LeaderboardContent() {
 
       const { data, error } = await supabase
         .from('users')
-        .select('id, email, nama, level, poin, study_plan, created_at')
+        .select('id, email, nama, level, poin, study_plan, created_at, today_minutes, streak')
         .order('poin', { ascending: false })
         .limit(50);
 
@@ -159,7 +149,7 @@ function LeaderboardContent() {
   const top3 = useMemo(() => leaderboardData.slice(0, 3), [leaderboardData]);
   const restList = useMemo(() => leaderboardData.slice(3), [leaderboardData]);
 
-  const renderItem = useCallback(({ item, index }: { item: UserType; index: number }) => (
+  const renderItem = useCallback(({ item, index }: { item: userType; index: number }) => (
     <LeaderboardCard user={item} rank={index + 4} />
   ), []);
 

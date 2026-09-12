@@ -1,18 +1,9 @@
 import * as SQLite from "expo-sqlite";
 import NetInfo from "@react-native-community/netinfo";
 import { supabase } from "@/config/supabase";
+import { userType } from "@/app/_layout";
 
 const db = SQLite.openDatabaseSync("javuzzle_offline.db");
-
-type userType = {
-  id: string;
-  email: string;
-  nama: string;
-  level: number;
-  poin: number;
-  study_plan: number;
-  created_at: string;
-};
 
 type UpdateType = {
   user: userType | null;

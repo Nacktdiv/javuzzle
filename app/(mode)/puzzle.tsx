@@ -19,8 +19,6 @@ import UpdateSkorAndLevel from "@/components/exercise/updateSkorAndLevel";
 const CopilotView = walkthroughable(View);
 const CopilotTouchableOpacity = walkthroughable(TouchableOpacity);
 
-import util from 'util';
-
 export default function PuzzleMode() {
   const router = useRouter();
   const { user, setUser } = useContext(globalDataContext);
