@@ -8,7 +8,6 @@ import { Colors } from '@/config/colors';
 
 const { width } = Dimensions.get('window');
 
-// Wrappers untuk react-native-copilot
 const CopilotView = walkthroughable(View);
 const CopilotTouchableOpacity = walkthroughable(TouchableOpacity);
 
@@ -25,16 +24,50 @@ export default function LevelGenerator({ data }: { data: any[] }) {
 
   let globalLevelIndex = 0;
 
-  const streakDays = ['S', 'S', 'R', 'K', 'J', 'S', 'M'];
-  const activeDaysCount = 4; 
+  const streakCount = user?.streak ?? 0;
+  const todayMinutes = user?.today_minutes ?? 0;
+  const studyPlan = user?.study_plan ?? 5; // Default target 5 menit jika null
+
+  // 1. Cek apakah target belajar HARI INI sudah tercapai
+  const isTodayGoalAchieved = todayMinutes >= studyPlan;
+
+  const dayNames = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];
+  const todayIndex = new Date().getDay();
+
+  // 2. Hitung streakDays berdasarkan pencapaian hari ini
+  const streakDays = dayNames.map((dayLabel, index) => {
+    // Hitung jarak hari dari hari ini (0 = Hari Ini, 1 = Kemarin, dst.)
+    const daysAgo = todayIndex - index;
+
+    let isActive = false;
+
+    if (daysAgo >= 0) {
+      if (isTodayGoalAchieved) {
+        // Jika target HARI INI SUDAH TERCAPAI:
+        // Hari aktif dihitung dari HARI INI mundur sebanyak `streakCount`
+        isActive = daysAgo < streakCount;
+      } else {
+        // Jika target HARI INI BELUM TERCAPAI:
+        // Hari ini (daysAgo === 0) tetap MATI/INAKTIF.
+        // Streak aktif dihitung mulai dari KEMARIN (daysAgo >= 1) mundur sebanyak `streakCount`
+        isActive = daysAgo >= 1 && daysAgo <= streakCount;
+      }
+    }
+
+    return {
+      dayLabel,
+      isActive,
+      isToday: index === todayIndex,
+    };
+  });
 
   return (
     <ScrollView 
       scrollEventThrottle={16}
       contentContainerStyle={styles.scrollContainer}
       showsVerticalScrollIndicator={false}
-    >
-      {/* Step 3: Rangkaian Latihan / Streak */}
+    >/
+      /{/* Step 3: Rangkaian Latihan / Streak */}
       <CopilotStep
         text="Ini adalah rangkaian latihan kamu. Latihan setiap hari untuk menjaga streak dan konsistensimu!"
         order={3}
@@ -47,18 +80,27 @@ export default function LevelGenerator({ data }: { data: any[] }) {
             </View>
             <View>
               <Text style={styles.streakTitle}>Rangkaian Latihan</Text>
-              <Text style={styles.streakSubtitle}>4 Hari Berurutan</Text>
+              <Text style={styles.streakSubtitle}>
+                {user?.streak ?? 0} Hari Berurutan
+              </Text>
             </View>
           </View>
           <View style={styles.daysContainer}>
-            {streakDays.map((day, index) => {
-              const isActive = index < activeDaysCount;
-              return (
-                <View key={index} style={[styles.dayCircle, isActive && styles.dayActive]}>
-                  <Text style={[styles.dayText, isActive && styles.dayTextActive]}>{day}</Text>
-                </View>
-              );
-            })}
+            {streakDays.map((item, index) => (
+              <View
+                key={index}
+                style={[styles.dayCircle, item.isActive && styles.dayActive]}
+              >
+                <Text
+                  style={[
+                    styles.dayText,
+                    item.isActive && styles.dayTextActive,
+                  ]}
+                >
+                  {item.dayLabel}
+                </Text>
+              </View>
+            ))}
           </View>
         </CopilotView>
       </CopilotStep>

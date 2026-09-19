@@ -1,17 +1,20 @@
-import * as NavigationBar from "expo-navigation-bar";
 import { Stack, useRouter, useSegments } from "expo-router";
-import React, { createContext, useEffect, useState, useRef } from "react";
-import { Platform, AppState, AppStateStatus } from "react-native";
+import React, { createContext, useEffect, useRef, useState } from "react";
+import { AppState } from "react-native";
 import { CopilotProvider } from "react-native-copilot";
 
-// === Import Offline Engine & Utilities ===
-import NetInfo from "@react-native-community/netinfo";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { initLocalDatabase } from "@/config/localDb";
-import { useSyncManager } from "@/config/useSyncManager";
-import { saveUserToLocal, getUserFromLocal, addStudyTimeLocal } from "@/components/main/userService";
+import { useSyncManager } from "@/service/global/useSyncManager";
+import NetInfo from "@react-native-community/netinfo";
 
-// === Import Google Fonts ===
+import { useAuthProfile } from "@/service/global/useAuthProfile";
+import { useStudyTimer } from "@/service/global/useStudyTimer";
+
+import {
+  registerForPushNotificationsAsync,
+  scheduleDailyReminder,
+} from "@/service/global/notification";
+
 import { Balthazar_400Regular } from "@expo-google-fonts/balthazar";
 import {
   Fraunces_400Regular,
@@ -23,10 +26,8 @@ import {
   useFonts,
 } from "@expo-google-fonts/playfair-display";
 
-// === Import UI Components & Config ===
 import { CustomAlertProvider } from "@/components/main/customAlert";
 import CustomSplashScreen from "@/components/main/splashScreen";
-import { supabase } from "@/config/supabase";
 
 export type userType = {
   id: string;
@@ -43,13 +44,15 @@ export type userType = {
 interface GlobalContextType {
   user: userType | null;
   setUser: React.Dispatch<React.SetStateAction<userType | null>>;
-  checkUserProfile: (userId: string) => Promise<void>;
+  setSession: React.Dispatch<React.SetStateAction<any>>;
+  checkUserProfile: () => Promise<void>;
   isOffline: boolean;
 }
 
 export const globalDataContext = createContext<GlobalContextType>({
   user: null,
   setUser: () => {},
+  setSession: () => {},
   checkUserProfile: async () => {},
   isOffline: false,
 });
@@ -59,73 +62,17 @@ export const CACHE_USER_KEY = "@user_profile_cache";
 export default function RootLayout() {
   const [isDbReady, setIsDbReady] = useState(false);
   const [isReady, setIsReady] = useState(false);
-  const [session, setSession] = useState<any>(null);
-  const [hasStudyPlan, setHasStudyPlan] = useState<boolean | null>(null);
-  const [isLoadingProfile, setIsLoadingProfile] = useState(false);
-  const [user, setUser] = useState<userType | null>(null);
-
   const [isOffline, setIsOffline] = useState(false);
-
-  // Auto-sync queue dari SQLite ke Supabase saat terhubung ke internet
-  useSyncManager();
-
-  // -------------------------------------------------------------
-  // ⏱️ LOGIKA TIMER BELAJAR UNTUK TODAY MINUTES & STREAK
-  // -------------------------------------------------------------
-  const appState = useRef(AppState.currentState);
-
-  useEffect(() => {
-    if (!isDbReady || !user?.id) return;
-
-    let secondsAcc = 0;
-
-    let intervalDetik = 60
-
-    const interval = setInterval(() => {
-      secondsAcc += 1;
-
-      if (secondsAcc >= intervalDetik) {
-        secondsAcc = 0;
-        const updatedUser = addStudyTimeLocal(user.id, 1);
-        if (updatedUser) {
-          setUser(updatedUser); 
-        }
-      }
-    }, 1000);
-
-    const subscription = AppState.addEventListener("change", (nextAppState: AppStateStatus) => {
-      if (
-        appState.current.match(/active/) &&
-        nextAppState.match(/inactive|background/)
-      ) {
-        if (secondsAcc >= 30) {
-          const updatedUser = addStudyTimeLocal(user.id, 1);
-          if (updatedUser) setUser(updatedUser);
-        }
-        secondsAcc = 0;
-      }
-      appState.current = nextAppState;
-    });
-
-    return () => {
-      clearInterval(interval);
-      subscription.remove();
-    };
-  }, [isDbReady, user?.id]);
-  // -------------------------------------------------------------
 
   const router = useRouter();
   const segments = useSegments();
 
-  // // Hide Navigation Bar di Android
-  // useEffect(() => {
-  //   if (Platform.OS === "android") {
-  //     NavigationBar.setVisibilityAsync("hidden").catch(() => {});
-  //   }
-  // }, []);
+  const userIdRef = useRef<string | null>(null);
+  const isNotificationSetup = useRef(false);
 
-  // Load Custom Fonts
-  const [loadedFonts, errorLoadedFonts] = useFonts({
+  useSyncManager();
+
+  const [loadedFonts] = useFonts({
     "Playfair-Display-Regular": PlayfairDisplay_400Regular,
     "Playfair-Display-Bold": PlayfairDisplay_700Bold,
     "Fraunces-Regular": Fraunces_400Regular,
@@ -133,10 +80,9 @@ export default function RootLayout() {
     "Balthazar-Regular": Balthazar_400Regular,
   });
 
-  // 1. Inisialisasi DB SQLite Lokal & Listener Jaringan
+  // 1. Inisialisasi DB & Listener Jaringan
   useEffect(() => {
     try {
-      console.log("⚙️ [APP] Menginisialisasi Database SQLite Lokal...");
       initLocalDatabase();
       setIsDbReady(true);
     } catch (err) {
@@ -145,161 +91,86 @@ export default function RootLayout() {
 
     const unsubscribeNet = NetInfo.addEventListener((state) => {
       const offline = !state.isConnected || !state.isInternetReachable;
-      console.log(
-        `🌐 [NETWORK STATUS] Connected: ${state.isConnected}, Reachable: ${state.isInternetReachable} => IsOffline: ${offline}`
-      );
       setIsOffline(Boolean(offline));
     });
 
     return () => unsubscribeNet();
   }, []);
 
-  // 2. Fungsi Ambil Data Profile (Online via Supabase / Offline via SQLite)
-  const checkUserProfile = async (userId: string) => {
-    if (!userId) return;
+  // 2. Auth Profile Hook (Diperluas dengan setSession)
+  const { session, user, setUser, setSession, hasStudyPlan, refetchProfile, loading } = useAuthProfile(isDbReady, isOffline);
+  userIdRef.current = user?.id ?? null;
 
-    setIsLoadingProfile(true);
-    console.log(`👤 [PROFILE] Memeriksa profil user ID: ${userId}...`);
-
-    try {
-      const netState = await NetInfo.fetch();
-      const isOnline = Boolean(netState.isConnected && netState.isInternetReachable);
-
-      if (isOnline) {
-        console.log("🌐 [PROFILE] Mode ONLINE: Mengambil data profil dari Supabase...");
-        const { data, error } = await supabase
-          .from("users")
-          .select("*")
-          .eq("id", userId)
-          .single();
-
-        if (error) {
-          console.error("⚠️ [PROFILE] Supabase fetch error:", error.message);
-        }
-
-        if (data) {
-          console.log("✅ [PROFILE] Data ditemukan dari Supabase:", data.nama);
-          setUser(data as userType);
-          setHasStudyPlan(data.study_plan !== null);
-          saveUserToLocal(data as userType, true);
-        } else {
-          setHasStudyPlan(false);
-        }
-      } else {
-        console.log("📡 [PROFILE] Mode OFFLINE: Mengambil data profil dari SQLite...");
-        const localUser = getUserFromLocal(userId) as userType | null;
-
-        if (localUser) {
-          setUser(localUser);
-          setHasStudyPlan(localUser.study_plan !== null);
-        } else {
-          setHasStudyPlan(false);
-        }
-      }
-    } catch (err) {
-      console.error("💥 [PROFILE] Terjadi galat saat fetch profil, alihkan ke fallback lokal:", err);
-      const localUser = getUserFromLocal(userId) as userType | null;
-      if (localUser) {
-        setUser(localUser);
-        setHasStudyPlan(localUser.study_plan !== null);
-      } else {
-        setHasStudyPlan(false);
-        setUser(null);
-      }
-    } finally {
-      setIsLoadingProfile(false);
-    }
-  };
-
-  // 3. Listener Auth Session (Hanya dipanggil setelah SQLite DB Siap)
+  // 3. Pengaturan Status Ready Splash Screen
   useEffect(() => {
-    if (!isDbReady) return;
+    if (!loadedFonts || !isDbReady) return;
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      if (session?.user) {
-        checkUserProfile(session.user.id);
-      } else {
-        setHasStudyPlan(null);
-      }
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setSession(session);
-        if (session?.user) {
-          checkUserProfile(session.user.id);
-        } else {
-          setHasStudyPlan(null);
-          setUser(null);
-          AsyncStorage.removeItem(CACHE_USER_KEY);
-        }
-      }
-    );
-
-    return () => {
-      if (subscription) subscription.unsubscribe();
-    };
-  }, [isDbReady]);
-
-  // 4. Pengaturan Status Siap (isReady) untuk Splash Screen
-  useEffect(() => {
-    if (errorLoadedFonts) {
-      console.error("error during load fonts: ", errorLoadedFonts);
-    }
-
-    if (!session && loadedFonts && isDbReady) {
-      setIsReady(true);
-      return;
-    }
-
-    if (session && hasStudyPlan !== null && !isLoadingProfile && loadedFonts && isDbReady) {
+    if (!session || (session && hasStudyPlan !== null)) {
       setIsReady(true);
     }
-  }, [session, hasStudyPlan, isLoadingProfile, loadedFonts, isDbReady, errorLoadedFonts]);
+  }, [session, hasStudyPlan, loadedFonts, isDbReady]);
 
-  // 5. Penanganan Navigasi/Routing
+  // 4. Timer Waktu Belajar
+  useStudyTimer(user, setUser, isDbReady);
+
+  // 5. Setup Notifikasi
   useEffect(() => {
-    if (!isReady || isLoadingProfile) return;
+    async function setupNotifications() {
+      if (!session?.user?.id || !user || isNotificationSetup.current) return;
+      isNotificationSetup.current = true;
+
+      await registerForPushNotificationsAsync();
+      const streakCount = user.streak ?? 0;
+      await scheduleDailyReminder(
+        streakCount > 0 ? "STREAK_PROTECTOR" : "STREAK_RESTART",
+        streakCount,
+        19,
+        0
+      );
+    }
+
+    setupNotifications();
+  }, [session?.user?.id, Boolean(user)]);
+
+  // 6. Routing Navigasi yang Aman (Online & Offline)
+  useEffect(() => {
+    if (!isReady || loading) return;
 
     const currentSegment = segments[0];
+    const isLoggedIn = Boolean(session || user);
 
-    if (!session) {
+    if (!isLoggedIn) {
       if (currentSegment !== "auth") {
         router.replace("/auth");
       }
-      return;
-    }
-
-    if (session) {
-      if (hasStudyPlan === false) {
-        if (currentSegment !== "onboarding") {
-          router.replace("/onboarding");
-        }
-      } else if (hasStudyPlan === true) {
-        if (currentSegment === "auth" || currentSegment === "onboarding") {
-          router.replace("/(tabs)");
-        }
+    } else {
+      if (hasStudyPlan === false && currentSegment !== "onboarding") {
+        router.replace("/onboarding");
+      } else if (hasStudyPlan === true && (currentSegment === "auth" || currentSegment === "onboarding")) {
+        router.replace("/(tabs)");
       }
     }
-  }, [session, hasStudyPlan, isReady, segments, isLoadingProfile, router]);
+  }, [session, user, hasStudyPlan, isReady, loading, segments]);
 
   if (!isReady || !isDbReady) {
     return <CustomSplashScreen />;
   }
 
   return (
-    <globalDataContext.Provider value={{ user, setUser, checkUserProfile, isOffline }}>
+    <globalDataContext.Provider
+      value={{
+        user,
+        setUser,
+        setSession,
+        checkUserProfile: refetchProfile,
+        isOffline,
+      }}
+    >
       <CustomAlertProvider>
         <CopilotProvider
           stopOnOutsideClick
           androidStatusBarVisible
-          labels={{
-            previous: "Sebelumnya",
-            next: "Lanjut",
-            skip: "Lewati",
-            finish: "Selesai",
-          }}
+          labels={{ previous: "Sebelumnya", next: "Lanjut", skip: "Lewati", finish: "Selesai" }}
         >
           <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen name="onboarding" />

@@ -2,10 +2,10 @@ import React from 'react';
 import { StyleSheet, Text, View, Dimensions, Image } from 'react-native';
 import { Colors } from '@/config/colors';
 import { Ionicons } from '@expo/vector-icons';
-import type { UserType } from '@/app/(tabs)/leaderboard';
+import { userType } from '@/app/_layout';
 
 interface LeaderboardCardProps {
-  user: UserType;
+  user: userType;
   rank: number;
 }
 

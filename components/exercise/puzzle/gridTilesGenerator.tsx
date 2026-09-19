@@ -1,6 +1,12 @@
-import { FlatList, Image, StyleSheet, TouchableOpacity, View } from "react-native";
-import { TilesType } from "@/components/material/dataMateri";
 import { Colors } from "@/config/colors";
+import { TilesType } from "@/service/global/dataMateri";
+import {
+    FlatList,
+    Image,
+    StyleSheet,
+    TouchableOpacity,
+    View,
+} from "react-native";
 
 interface GridTilesGeneratorProps {
   data: TilesType[];
@@ -15,7 +21,6 @@ export default function GridTilesGenerator({
   setChooseComponent,
   maxSlots = 4,
 }: GridTilesGeneratorProps) {
-
   function RenderItemGrid({ item }: { item: TilesType }) {
     const sudahDipilih = chooseComponent.includes(item);
 
@@ -35,7 +40,9 @@ export default function GridTilesGenerator({
         onPress={handleClickTiles}
         style={[
           styles.ItemContainer,
-          sudahDipilih ? styles.ItemContainerActive : styles.ItemContainerNormal,
+          sudahDipilih
+            ? styles.ItemContainerActive
+            : styles.ItemContainerNormal,
         ]}
       >
         <Image style={styles.ItemContainerImage} source={item.image} />
@@ -87,12 +94,12 @@ const styles = StyleSheet.create({
   },
   ItemContainerNormal: {
     borderWidth: 1.5,
-    borderColor: '#EFE2CE',
+    borderColor: "#EFE2CE",
   },
   ItemContainerActive: {
     borderWidth: 2,
     borderColor: Colors.gold,
-    backgroundColor: '#FFFDF9',
+    backgroundColor: "#FFFDF9",
   },
   ItemContainerImage: {
     width: "100%",

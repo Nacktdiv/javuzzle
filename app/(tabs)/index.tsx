@@ -7,7 +7,7 @@ import { CopilotStep, walkthroughable, useCopilot, CopilotProvider } from 'react
 import { globalDataContext } from '@/app/_layout';
 import { Colors } from '@/config/colors';
 
-import { dataLevel } from '@/components/exercise/dataLevel';
+import { dataLevel } from '@/service/exercise/dataLevel';
 import LevelGenerator from '@/components/exercise/levelGenerator';
 
 const CopilotView = walkthroughable(View);

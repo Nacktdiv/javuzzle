@@ -1,10 +1,18 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { Modal, StyleSheet, Text, TouchableOpacity, View, ScrollView, Image } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { Audio } from 'expo-av';
+import { Ionicons } from "@expo/vector-icons";
+import { createAudioPlayer } from "expo-audio";
+import React, { useEffect, useRef, useState } from "react";
+import {
+  Image,
+  Modal,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
-import { Colors } from '@/config/colors';
-import { MateriType } from './dataMateri';
+import { Colors } from "@/config/colors";
+import { MateriType } from "../../service/global/dataMateri";
 
 type Props = {
   visible: boolean;
@@ -13,31 +21,25 @@ type Props = {
 };
 
 export default function ModalMateri({ visible, item, onClose }: Props) {
-  const [sound, setSound] = useState<Audio.Sound | null>(null);
   const [playingAudioId, setPlayingAudioId] = useState<string | null>(null);
-  
-  // Menggunakan ref untuk menyimpan referensi instance sound terbaru secara sinkron
-  const soundRef = useRef<Audio.Sound | null>(null);
 
-  // Helper untuk menghentikan dan menghapus sound secara aman
+  const playerRef = useRef<any>(null);
+
+  // Helper untuk menghentikan audio secara aman
   const stopAndUnloadSound = async () => {
-    if (soundRef.current) {
+    if (playerRef.current) {
       try {
-        const status = await soundRef.current.getStatusAsync();
-        if (status.isLoaded) {
-          await soundRef.current.stopAsync();
-          await soundRef.current.unloadAsync();
-        }
+        playerRef.current.pause();
+        playerRef.current.seekTo(0);
       } catch (err) {
-        // Mengabaikan error jika sound sudah keburu ter-unload
+        // Safe ignore
       } finally {
-        soundRef.current = null;
-        setSound(null);
+        playerRef.current = null;
       }
     }
   };
 
-  // Bersihkan audio dari memori saat komponen unmount atau modal ditutup
+  // Bersihkan audio saat komponen unmount / modal tertutup
   useEffect(() => {
     return () => {
       stopAndUnloadSound();
@@ -48,37 +50,27 @@ export default function ModalMateri({ visible, item, onClose }: Props) {
 
   const playAudio = async (audioSource: any, audioId: string) => {
     try {
-      // Hentikan suara yang sedang berjalan jika ada
       await stopAndUnloadSound();
 
       if (!audioSource) return;
 
       setPlayingAudioId(audioId);
 
-      const { sound: newSound } = await Audio.Sound.createAsync(
-        audioSource,
-        { shouldPlay: true }
-      );
+      const player = createAudioPlayer(audioSource);
+      playerRef.current = player;
 
-      soundRef.current = newSound;
-      setSound(newSound);
-
-      newSound.setOnPlaybackStatusUpdate(async (status: any) => {
-        if (status.isLoaded && status.didJustFinish) {
+      player.addListener("playbackStatusUpdate", (status: any) => {
+        if (status.didJustFinish) {
           setPlayingAudioId(null);
-          try {
-            await newSound.unloadAsync();
-          } catch (err) {
-            // Safe ignore
-          }
-          if (soundRef.current === newSound) {
-            soundRef.current = null;
-            setSound(null);
+          if (playerRef.current === player) {
+            playerRef.current = null;
           }
         }
       });
+
+      player.play();
     } catch (error) {
-      console.error('Gagal memutar audio:', error);
+      console.error("Gagal memutar audio:", error);
       setPlayingAudioId(null);
     }
   };
@@ -90,26 +82,41 @@ export default function ModalMateri({ visible, item, onClose }: Props) {
   };
 
   return (
-    <Modal visible={visible} animationType="slide" transparent={true} onRequestClose={handleClose}>
+    <Modal
+      visible={visible}
+      animationType="slide"
+      transparent={true}
+      onRequestClose={handleClose}
+    >
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
           <TouchableOpacity style={styles.closeButton} onPress={handleClose}>
             <Ionicons name="close" size={30} color={Colors.text} />
           </TouchableOpacity>
 
-          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 20 }}>
-            {/* Header dengan Tombol Audio Utama */}
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: 20 }}
+          >
             <View style={styles.headerContainer}>
-              <Image style={styles.detailAksara} source={item.aksara} resizeMode="contain" />
+              <Image
+                style={styles.detailAksara}
+                source={item.aksara}
+                resizeMode="contain"
+              />
               <View style={styles.titleAudioRow}>
                 <Text style={styles.detailLatin}>Aksara "{item.latin}"</Text>
                 {item.audioAksara && (
                   <TouchableOpacity
                     style={styles.audioButtonHeader}
-                    onPress={() => playAudio(item.audioAksara, 'main')}
+                    onPress={() => playAudio(item.audioAksara, "main")}
                   >
                     <Ionicons
-                      name={playingAudioId === 'main' ? 'volume-high' : 'volume-medium-outline'}
+                      name={
+                        playingAudioId === "main"
+                          ? "volume-high"
+                          : "volume-medium-outline"
+                      }
                       size={24}
                       color={Colors.text}
                     />
@@ -118,29 +125,36 @@ export default function ModalMateri({ visible, item, onClose }: Props) {
               </View>
             </View>
 
-            {/* Section Penjelasan */}
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Penjelasan</Text>
               <Text style={styles.bodyText}>{item.deskripsi}</Text>
             </View>
 
-            {/* Section Komponen */}
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Komponen</Text>
               {item.komponen.map((ex, index) => (
-                <View key={index} style={[styles.universalRow, { flexDirection: 'row', height: 60 }]}>
+                <View
+                  key={index}
+                  style={[
+                    styles.universalRow,
+                    { flexDirection: "row", height: 60 },
+                  ]}
+                >
                   <View style={styles.komponenContainerHeader}>
                     <Text style={styles.komponenKata}>{ex.nama}</Text>
                     <Text style={styles.komponenKata}>Urutan {ex.urutan}</Text>
                   </View>
                   <View style={styles.komponenContainerImage}>
-                    <Image style={styles.komponenImage} source={ex.image} resizeMode="contain" />
+                    <Image
+                      style={styles.komponenImage}
+                      source={ex.image}
+                      resizeMode="contain"
+                    />
                   </View>
                 </View>
               ))}
             </View>
 
-            {/* Section Contoh Kata dengan Tombol Audio Per-Baris */}
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Contoh Kata</Text>
               {item.contoh.map((ex, index) => {
@@ -151,7 +165,9 @@ export default function ModalMateri({ visible, item, onClose }: Props) {
                     style={[
                       styles.universalRow,
                       styles.contohRow,
-                      index === item.contoh.length - 1 && { borderBottomWidth: 0 },
+                      index === item.contoh.length - 1 && {
+                        borderBottomWidth: 0,
+                      },
                     ]}
                   >
                     <View style={{ flex: 1 }}>
@@ -165,7 +181,11 @@ export default function ModalMateri({ visible, item, onClose }: Props) {
                         onPress={() => playAudio(ex.audio, audioId)}
                       >
                         <Ionicons
-                          name={playingAudioId === audioId ? 'volume-high' : 'volume-medium-outline'}
+                          name={
+                            playingAudioId === audioId
+                              ? "volume-high"
+                              : "volume-medium-outline"
+                          }
                           size={22}
                           color={Colors.text}
                         />
@@ -185,8 +205,8 @@ export default function ModalMateri({ visible, item, onClose }: Props) {
 const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.6)',
-    justifyContent: 'flex-end',
+    backgroundColor: "rgba(0,0,0,0.6)",
+    justifyContent: "flex-end",
   },
   modalContent: {
     backgroundColor: Colors.background,
@@ -194,23 +214,23 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 24,
     paddingHorizontal: 24,
     paddingTop: 30,
-    maxHeight: '85%',
+    maxHeight: "85%",
   },
   closeButton: {
-    position: 'absolute',
+    position: "absolute",
     top: 15,
     right: 20,
     backgroundColor: Colors.orange,
     width: 40,
     height: 40,
     borderRadius: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     zIndex: 10,
   },
   headerContainer: {
-    width: '100%',
-    alignItems: 'center',
+    width: "100%",
+    alignItems: "center",
     marginBottom: 20,
   },
   detailAksara: {
@@ -218,22 +238,22 @@ const styles = StyleSheet.create({
     aspectRatio: 1,
   },
   titleAudioRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginTop: 10,
     gap: 10,
   },
   detailLatin: {
     fontSize: 22,
-    fontFamily: 'Fraunces-Bold',
+    fontFamily: "Fraunces-Bold",
     color: Colors.orange,
   },
   audioButtonHeader: {
     backgroundColor: Colors.orange,
     padding: 6,
     borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   section: {
     backgroundColor: Colors.backgroundDark,
@@ -248,13 +268,13 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 16,
-    fontFamily: 'Fraunces-Bold',
+    fontFamily: "Fraunces-Bold",
     color: Colors.orange,
     marginBottom: 8,
   },
   bodyText: {
     fontSize: 14,
-    fontFamily: 'Balthazar-Regular',
+    fontFamily: "Balthazar-Regular",
     color: Colors.textDark,
     lineHeight: 20,
   },
@@ -264,50 +284,50 @@ const styles = StyleSheet.create({
     borderBottomColor: Colors.border,
   },
   contohRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   komponenContainerHeader: {
     gap: 4,
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: "center",
   },
   komponenKata: {
     fontSize: 14,
     color: Colors.textDark,
-    fontFamily: 'Fraunces-Bold',
+    fontFamily: "Fraunces-Bold",
   },
   komponenContainerImage: {
     aspectRatio: 1,
-    height: '100%',
+    height: "100%",
     backgroundColor: Colors.text,
     borderWidth: 1,
     borderColor: Colors.borderDark,
     padding: 4,
   },
   komponenImage: {
-    width: '100%',
-    height: '100%',
+    width: "100%",
+    height: "100%",
   },
   contohKata: {
     fontSize: 20,
     color: Colors.textDark,
-    fontFamily: 'Fraunces-Bold',
+    fontFamily: "Fraunces-Bold",
     marginBottom: 2,
   },
   contohArti: {
     fontSize: 14,
     color: Colors.orange,
-    fontFamily: 'Balthazar-Regular',
+    fontFamily: "Balthazar-Regular",
   },
   audioButtonRow: {
     backgroundColor: Colors.orange,
     width: 36,
     height: 36,
     borderRadius: 18,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     marginLeft: 10,
   },
 });

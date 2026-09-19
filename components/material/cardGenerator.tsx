@@ -1,9 +1,9 @@
-import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native';
-import { CopilotStep, walkthroughable } from 'react-native-copilot';
+import React from "react";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { CopilotStep, walkthroughable } from "react-native-copilot";
 
-import { Colors } from '@/config/colors';
-import { MateriType } from './dataMateri';
+import { Colors } from "@/config/colors";
+import { MateriType } from "../../service/global/dataMateri";
 
 // Pembungkus Copilot untuk TouchableOpacity
 const CopilotTouchableOpacity = walkthroughable(TouchableOpacity);
@@ -19,14 +19,18 @@ type Props = {
   };
 };
 
-export default function CardGenerator({ item, onPress, copilotStepProps }: Props) {
+export default function CardGenerator({
+  item,
+  onPress,
+  copilotStepProps,
+}: Props) {
   const CardContent = (
-    <CopilotTouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.7}>
-      <Image
-        source={item.aksara}
-        style={styles.image}
-        resizeMode="contain"
-      />
+    <CopilotTouchableOpacity
+      style={styles.card}
+      onPress={onPress}
+      activeOpacity={0.7}
+    >
+      <Image source={item.aksara} style={styles.image} resizeMode="contain" />
       <View style={styles.badge}>
         <Text style={styles.latinText}>{item.latin}</Text>
       </View>
@@ -52,18 +56,18 @@ export default function CardGenerator({ item, onPress, copilotStepProps }: Props
 const styles = StyleSheet.create({
   card: {
     flex: 1,
-    maxWidth: '30%',
+    maxWidth: "30%",
     aspectRatio: 0.9,
     backgroundColor: Colors.text,
     borderRadius: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     padding: 8,
   },
   image: {
-    flex: 1, 
-    width: '70%',
-    height: '70%',
+    flex: 1,
+    width: "70%",
+    height: "70%",
     marginBottom: 6,
   },
   badge: {
@@ -74,7 +78,7 @@ const styles = StyleSheet.create({
   },
   latinText: {
     fontSize: 12,
-    fontFamily: 'Fraunces-Bold',
+    fontFamily: "Fraunces-Bold",
     color: Colors.text,
   },
 });

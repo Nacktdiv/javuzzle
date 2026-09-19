@@ -1,20 +1,26 @@
-import React, { useState, useEffect, useContext, useCallback, useRef } from "react";
-import { StyleSheet, View, Text, Image, TouchableOpacity } from "react-native";
-import { useRouter, useLocalSearchParams } from "expo-router";
-import { CopilotStep, walkthroughable, useCopilot } from "react-native-copilot";
 import { Ionicons } from "@expo/vector-icons";
-import { Audio } from "expo-av";
+import { createAudioPlayer } from "expo-audio";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { CopilotStep, useCopilot, walkthroughable } from "react-native-copilot";
 
-import { Colors } from "@/config/colors";
-import { globalDataContext } from "@/app/_layout";
 import { ModeContext } from "@/app/(mode)/_layout";
-import { useCustomAlert } from "@/components/main/customAlert";
-import { ComponentType, TilesType } from "@/components/material/dataMateri";
-import TeksHighlight from "@/components/exercise/textHighlighter";
-import DataPuzzleGenerator from "@/components/exercise/puzzle/dataPuzzleGenerator";
-import RandomTilesGenerator from "@/components/exercise/puzzle/randomTilesGenerator";
+import { globalDataContext } from "@/app/_layout";
 import GridTilesGenerator from "@/components/exercise/puzzle/gridTilesGenerator";
-import UpdateSkorAndLevel from "@/components/exercise/updateSkorAndLevel";
+import TeksHighlight from "@/components/exercise/textHighlighter";
+import { useCustomAlert } from "@/components/main/customAlert";
+import { Colors } from "@/config/colors";
+import UpdateSkorAndLevel from "@/service/exercise/updateSkorAndLevel";
+import { ComponentType, TilesType } from "@/service/global/dataMateri";
+import DataPuzzleGenerator from "@/service/puzzle/dataPuzzleGenerator";
+import RandomTilesGenerator from "@/service/puzzle/randomTilesGenerator";
 
 const CopilotView = walkthroughable(View);
 const CopilotTouchableOpacity = walkthroughable(TouchableOpacity);
@@ -26,7 +32,12 @@ export default function PuzzleMode() {
   const { showAlert } = useCustomAlert();
   const { start, stop } = useCopilot();
 
-  const { question, level: levelParam, poin: poinParam, audio: audioParam } = useLocalSearchParams<{
+  const {
+    question,
+    level: levelParam,
+    poin: poinParam,
+    audio: audioParam,
+  } = useLocalSearchParams<{
     question: string;
     level: string;
     poin: string;
@@ -43,21 +54,18 @@ export default function PuzzleMode() {
   const [requiredSlotCount, setRequiredSlotCount] = useState<number>(4);
   const [isPlayingAudio, setIsPlayingAudio] = useState<boolean>(false);
 
-  const soundRef = useRef<Audio.Sound | null>(null);
+  const playerRef = useRef<any>(null);
 
   // Helper untuk menghentikan audio secara aman
   const stopAndUnloadSound = async () => {
-    if (soundRef.current) {
+    if (playerRef.current) {
       try {
-        const status = await soundRef.current.getStatusAsync();
-        if (status.isLoaded) {
-          await soundRef.current.stopAsync();
-          await soundRef.current.unloadAsync();
-        }
+        playerRef.current.pause();
+        playerRef.current.seekTo(0);
       } catch (e) {
         // Safe ignore
       } finally {
-        soundRef.current = null;
+        playerRef.current = null;
         setIsPlayingAudio(false);
       }
     }
@@ -80,35 +88,25 @@ export default function PuzzleMode() {
 
       let audioSource: any;
 
-      // 1. Jika param berupa string angka dari URL (misal: "170"), konversi ke Number
       if (typeof audioParam === "string" && !isNaN(Number(audioParam))) {
         audioSource = Number(audioParam);
-      } 
-      // 2. Jika param berupa objek uri/source
-      else if (typeof audioParam === "string") {
+      } else if (typeof audioParam === "string") {
         audioSource = { uri: audioParam };
-      } 
-      // 3. Jika param sudah berupa number module ID
-      else {
+      } else {
         audioSource = audioParam;
       }
 
-      const { sound: newSound } = await Audio.Sound.createAsync(
-        audioSource,
-        { shouldPlay: true }
-      );
+      const player = createAudioPlayer(audioSource);
+      playerRef.current = player;
 
-      soundRef.current = newSound;
-
-      newSound.setOnPlaybackStatusUpdate(async (status: any) => {
-        if (status.isLoaded && status.didJustFinish) {
+      player.addListener("playbackStatusUpdate", (status: any) => {
+        if (status.didJustFinish) {
           setIsPlayingAudio(false);
-          try {
-            await newSound.unloadAsync();
-          } catch (e) {}
-          soundRef.current = null;
+          playerRef.current = null;
         }
       });
+
+      player.play();
     } catch (error) {
       console.warn("Gagal memutar audio soal:", error);
       setIsPlayingAudio(false);
@@ -119,8 +117,7 @@ export default function PuzzleMode() {
     requestAnimationFrame(() => {
       try {
         stop();
-      } catch (e) {
-      }
+      } catch (e) {}
       setTimeout(() => {
         start().catch(() => {});
       }, 50);
@@ -138,8 +135,6 @@ export default function PuzzleMode() {
 
   useEffect(() => {
     const generateData = DataPuzzleGenerator(question);
-    // const testData = DataPuzzleGenerator("masesêsaê")
-    // console.log(util.inspect((testData), { showHidden: false, depth: null, colors: true }));
     setDataLevel(generateData);
     setActivePart(0);
   }, [question]);
@@ -152,11 +147,17 @@ export default function PuzzleMode() {
 
     const finalProses = async () => {
       try {
-        const data = await UpdateSkorAndLevel({ user, setUser, poin, level: level + 1 });
+        const data = await UpdateSkorAndLevel({
+          user,
+          setUser,
+          poin,
+          level: level + 1,
+        });
         if (data) {
           showAlert({
             title: "SELAMAT!",
-            message: "Anda telah berhasil menyelesaikan tantangan pada level ini",
+            message:
+              "Anda telah berhasil menyelesaikan tantangan pada level ini",
             confirmText: "OK",
             onConfirmPressed: () => {
               setTimeout(() => {
@@ -198,7 +199,9 @@ export default function PuzzleMode() {
       return;
     }
 
-    const komponenSukuKata: ComponentType[] = Object.values(dataLevel[activePart])[0] as any;
+    const komponenSukuKata: ComponentType[] = Object.values(
+      dataLevel[activePart],
+    )[0] as any;
     const generateRandomGrid = RandomTilesGenerator(komponenSukuKata);
     setGridItems(generateRandomGrid);
     setRequiredSlotCount(komponenSukuKata.length);
@@ -211,7 +214,9 @@ export default function PuzzleMode() {
   const handleAnalyze = () => {
     if (!dataLevel || !dataLevel[activePart]) return;
 
-    const komponenSukuKata: ComponentType[] = Object.values(dataLevel[activePart])[0] as any;
+    const komponenSukuKata: ComponentType[] = Object.values(
+      dataLevel[activePart],
+    )[0] as any;
 
     if (chooseComponent.length < komponenSukuKata.length) {
       showAlert({
@@ -223,7 +228,7 @@ export default function PuzzleMode() {
     }
 
     const apakahSemuaBenar = chooseComponent.every(
-      (val, index) => val.nama === komponenSukuKata[index].nama
+      (val, index) => val.nama === komponenSukuKata[index].nama,
     );
 
     if (apakahSemuaBenar) {
@@ -241,12 +246,10 @@ export default function PuzzleMode() {
     }
   };
 
-  // Hitung ukuran slot dinamis berdasarkan jumlah slot
   const slotSize = requiredSlotCount > 4 ? 52 : 68;
 
   return (
     <View style={styles.container}>
-      {/* STEP 1: Kartu Pertanyaan */}
       <CopilotStep
         text="Ini adalah kata atau kalimat yang harus kamu terjemahkan ke dalam susunan Aksara Jawa."
         order={1}
@@ -263,7 +266,9 @@ export default function PuzzleMode() {
                 activeOpacity={0.7}
               >
                 <Ionicons
-                  name={isPlayingAudio ? "volume-high" : "volume-medium-outline"}
+                  name={
+                    isPlayingAudio ? "volume-high" : "volume-medium-outline"
+                  }
                   size={22}
                   color="#FFFFFF"
                 />
@@ -273,7 +278,6 @@ export default function PuzzleMode() {
         </CopilotView>
       </CopilotStep>
 
-      {/* STEP 2: Slot Jawaban */}
       <CopilotStep
         text="Slot ini berisi urutan pecahan Aksara Jawa yang kamu pilih. Kamu bisa menekan slot yang sudah terisi jika ingin menghapusnya."
         order={2}
@@ -293,15 +297,27 @@ export default function PuzzleMode() {
                   ]}
                   onPress={() => {
                     if (selectedItem) {
-                      setChooseComponent((prev) => prev.filter((_, i) => i !== index));
+                      setChooseComponent((prev) =>
+                        prev.filter((_, i) => i !== index),
+                      );
                     }
                   }}
                   activeOpacity={selectedItem ? 0.7 : 1}
                 >
                   {selectedItem ? (
-                    <Image style={styles.slotImage} source={selectedItem.image} />
+                    <Image
+                      style={styles.slotImage}
+                      source={selectedItem.image}
+                    />
                   ) : (
-                    <Text style={[styles.slotQuestionMark, requiredSlotCount > 5 && { fontSize: 20 }]}>?</Text>
+                    <Text
+                      style={[
+                        styles.slotQuestionMark,
+                        requiredSlotCount > 5 && { fontSize: 20 },
+                      ]}
+                    >
+                      ?
+                    </Text>
                   )}
                 </TouchableOpacity>
               );
@@ -310,7 +326,6 @@ export default function PuzzleMode() {
         </CopilotView>
       </CopilotStep>
 
-      {/* STEP 3: Grid Pilihan Aksara */}
       <CopilotStep
         text="Pilih potongan Aksara Jawa di bawah ini sesuai urutan yang tepat untuk melengkapi slot jawaban."
         order={3}
@@ -328,26 +343,29 @@ export default function PuzzleMode() {
         </CopilotView>
       </CopilotStep>
 
-      {/* Action Buttons */}
       <View style={styles.buttonContainer}>
-        {/* STEP 4: Tombol Reset */}
         <CopilotStep
           text="Tekan tombol Reset jika kamu ingin mengosongkan semua slot jawaban yang telah kamu pilih."
           order={4}
           name="resetPuzzleButtonStep"
         >
-          <CopilotTouchableOpacity style={styles.resetButton} onPress={handleReset}>
+          <CopilotTouchableOpacity
+            style={styles.resetButton}
+            onPress={handleReset}
+          >
             <Text style={styles.resetButtonText}>Reset</Text>
           </CopilotTouchableOpacity>
         </CopilotStep>
 
-        {/* STEP 5: Tombol Analisis */}
         <CopilotStep
           text="Tekan tombol Analisis untuk menguji apakah susunan Aksara Jawa yang kamu rangkai sudah benar."
           order={5}
           name="analyzePuzzleButtonStep"
         >
-          <CopilotTouchableOpacity style={styles.analyzeButton} onPress={handleAnalyze}>
+          <CopilotTouchableOpacity
+            style={styles.analyzeButton}
+            onPress={handleAnalyze}
+          >
             <Text style={styles.analyzeButtonText}>Analisis</Text>
           </CopilotTouchableOpacity>
         </CopilotStep>

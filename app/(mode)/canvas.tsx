@@ -4,7 +4,7 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 import { Asset } from "expo-asset";
 import { File, Paths } from "expo-file-system";
 import { Ionicons } from "@expo/vector-icons";
-import { Audio } from "expo-av";
+import { createAudioPlayer } from "expo-audio";
 import { CopilotStep, walkthroughable, useCopilot } from "react-native-copilot";
 
 import { Colors } from "@/config/colors";
@@ -12,9 +12,9 @@ import { globalDataContext } from "@/app/_layout";
 import { ModeContext } from "@/app/(mode)/_layout";
 import { useCustomAlert } from "@/components/main/customAlert";
 import CanvasComponent from "@/components/exercise/canvas/canvasComponent";
-import DataCanvasGenerator from "@/components/exercise/canvas/dataCanvasGenerator";
+import DataCanvasGenerator from "@/service/canvas/dataCanvasGenerator";
 import TeksHighlight from "@/components/exercise/textHighlighter";
-import UpdateSkorAndLevel from "@/components/exercise/updateSkorAndLevel";
+import UpdateSkorAndLevel from "@/service/exercise/updateSkorAndLevel";
 
 const CopilotView = walkthroughable(View);
 
@@ -49,21 +49,18 @@ export default function Canvas() {
   const [dataLevel, setDataLevel] = useState<any[] | null>(null);
   const [isPlayingAudio, setIsPlayingAudio] = useState<boolean>(false);
 
-  const soundRef = useRef<Audio.Sound | null>(null);
+  const playerRef = useRef<any>(null);
 
   // Helper untuk menghentikan audio secara aman
   const stopAndUnloadSound = async () => {
-    if (soundRef.current) {
+    if (playerRef.current) {
       try {
-        const status = await soundRef.current.getStatusAsync();
-        if (status.isLoaded) {
-          await soundRef.current.stopAsync();
-          await soundRef.current.unloadAsync();
-        }
+        playerRef.current.pause();
+        playerRef.current.seekTo(0);
       } catch (e) {
         // Safe ignore
       } finally {
-        soundRef.current = null;
+        playerRef.current = null;
         setIsPlayingAudio(false);
       }
     }
@@ -94,22 +91,17 @@ export default function Canvas() {
         audioSource = audioParam;
       }
 
-      const { sound: newSound } = await Audio.Sound.createAsync(
-        audioSource,
-        { shouldPlay: true }
-      );
+      const player = createAudioPlayer(audioSource);
+      playerRef.current = player;
 
-      soundRef.current = newSound;
-
-      newSound.setOnPlaybackStatusUpdate(async (status: any) => {
-        if (status.isLoaded && status.didJustFinish) {
+      player.addListener("playbackStatusUpdate", (status: any) => {
+        if (status.didJustFinish) {
           setIsPlayingAudio(false);
-          try {
-            await newSound.unloadAsync();
-          } catch (e) {}
-          soundRef.current = null;
+          playerRef.current = null;
         }
       });
+
+      player.play();
     } catch (error) {
       console.warn("Gagal memutar audio soal:", error);
       setIsPlayingAudio(false);
@@ -242,7 +234,6 @@ export default function Canvas() {
 
   return (
     <View style={styles.container}>
-      {/* Step 1: Soal / Tantangan */}
       <CopilotStep
         text="Bagian ini menampilkan kalimat atau kata yang harus kamu terjemahkan dan tulis ke dalam Aksara Jawa."
         order={1}
@@ -269,7 +260,6 @@ export default function Canvas() {
         </CopilotView>
       </CopilotStep>
 
-      {/* Step 2: Panduan Menulis */}
       <CopilotStep
         text="Baca panduan ini untuk mengetahui urutan penulisan aksara dasar dan sandhangan yang benar."
         order={2}
@@ -294,7 +284,6 @@ export default function Canvas() {
         />
       )}
 
-      {/* Step 3: Canvas Menulis */}
       <View style={styles.canvasContainer}>
         {dataLevel && (
           <CopilotStep

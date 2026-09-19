@@ -4,7 +4,7 @@ import { Canvas, Path, Rect, Skia, useCanvasRef } from "@shopify/react-native-sk
 import { CopilotStep, walkthroughable } from "react-native-copilot";
 
 import { useCustomAlert } from "@/components/main/customAlert";
-import { AnalyzeImageBuffer, MakeImageBufferPerPiece, MakeImageBufferFullCanvas } from "./canvasMultiAnalyze";
+// import { AnalyzeImageBuffer, MakeImageBufferPerPiece, MakeImageBufferFullCanvas } from "./canvasMultiAnalyze";
 import { Colors } from "@/config/colors";
 
 const CopilotView = walkthroughable(View);
@@ -91,7 +91,6 @@ export default function CanvasComponent({ boxedModel, activeIndex, setActiveInde
 
   return (
     <View style={styles.container}>
-      {/* STEP 3: Area Gambar Canvas */}
       <CopilotStep
         text="Gambar aksara Jawa yang diminta dengan menggoreskan jarimu di dalam area kotak kanvas ini."
         order={3}
@@ -129,7 +128,6 @@ export default function CanvasComponent({ boxedModel, activeIndex, setActiveInde
       </CopilotStep>
 
       <View style={styles.buttonContainer}>
-        {/* STEP 4: Tombol Reset Kanvas */}
         <CopilotStep
           text="Tekan tombol Reset jika kamu ingin menghapus seluruh goresan di kanvas dan mengulangnya dari awal."
           order={4}
@@ -140,7 +138,6 @@ export default function CanvasComponent({ boxedModel, activeIndex, setActiveInde
           </CopilotTouchableOpacity>
         </CopilotStep>
 
-        {/* STEP 5: Tombol Analisis Kanvas */}
         <CopilotStep
           text="Tekan tombol Analisis setelah selesai menggambar untuk memeriksa ketepatan tulisan Aksara Jawamu."
           order={5}
